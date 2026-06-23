@@ -1,0 +1,10 @@
+{
+    "admin": {
+        "pw": "admin1234",
+        "name": "시스템 관리자",
+        "email": "admin@firecontrol.kr",
+        "phone": "010-0000-0000",
+        "role": "admin",
+        "approved": true
+    }
+}
