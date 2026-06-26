@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ notice.title }} — 공지사항</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+{% include 'include/nav.html' %}
+
+<div class="notice-wrapper" id="notice-detail-wrapper">
+  <div class="notice-container" id="notice-detail-container">
+
+    <div class="notice-detail-card" id="notice-detail-card">
+      <div class="notice-detail-header">
+        {% if notice.pinned %}
+        <span style="font-size:0.8rem; color:var(--orange-main); margin-bottom:6px; display:block;">
+          📌 공지
+        </span>
+        {% endif %}
+        <div class="notice-detail-title">{{ notice.title }}</div>
+        <div class="notice-detail-meta">
+          <span>작성자: {{ notice.author_name }}</span>
+          <span>작성일: {{ notice.created_at }}</span>
+        </div>
+      </div>
+
+      <div class="notice-detail-body" id="notice-detail-body">{{ notice.content }}</div>
+
+      <div class="notice-detail-footer" id="notice-detail-footer">
+        <a href="/notice/" class="btn btn-secondary btn-sm" id="back-notice-btn">
+          목록으로
+        </a>
+        {% if session.get('signinedMemberRole') == 'admin' %}
+        <form action="/admin/notice/delete/{{ notice.id }}" method="POST"
+              style="display:inline;"
+              onsubmit="return confirm('이 공지를 삭제하시겠습니까?')">
+          <button type="submit" class="btn btn-danger btn-sm"
+                  id="delete-notice-btn">삭제</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

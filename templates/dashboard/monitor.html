@@ -1,205 +1,183 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>소방 관제 시스템 - 실시간 모니터링</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>실시간 모니터링 — 드론 소방 관제 시스템</title>
+  <link rel="stylesheet" href="/static/css/style.css">
 </head>
-<body style="background:#080c12; overflow:hidden; height:100vh; display:flex; flex-direction:column;">
+<body>
+{% include 'include/nav.html' %}
 
-<!-- ── 최상단 상태바 ── -->
-<div class="monitor-topbar" id="monitor-topbar">
-    <div class="title-block">
-        <span style="color:#cc1a1a; font-weight:900; letter-spacing:0.05em;">🔥 FIRE CONTROL SYSTEM</span>
-        <span style="color:#3a4a60; margin:0 10px;">|</span>
-        <span style="color:#5a7090; font-size:0.78rem;">실시간 드론 모니터링</span>
-        {% if session.get('signinedMemberRole') == 'admin' %}
-        <span style="background:#8b3a00; color:#ffb060; font-size:0.7rem; font-weight:700;
-                     padding:2px 8px; border-radius:3px; margin-left:10px; letter-spacing:0.05em;">
-            ADMIN
-        </span>
-        {% endif %}
+<!-- 화재 경보 화면 테두리 -->
+<div class="screen-danger-border" id="screen-danger-border"></div>
+
+<!-- 화재 경보 모달 -->
+<div class="fire-modal-overlay hidden" id="fire-modal-overlay">
+  <div class="fire-modal" id="fire-modal">
+    <div class="fire-modal-header">WARNING</div>
+    <div class="fire-modal-siren">🚨</div>
+    <div class="fire-modal-alert">산불이 감지되었습니다!</div>
+    <div class="fire-modal-info" id="fire-modal-info">
+      <div class="fire-modal-info-row">
+        <span class="fire-info-label">드론 ID</span>
+        <span class="fire-info-value" id="alert-drone">DR-01</span>
+      </div>
+      <div class="fire-modal-info-row">
+        <span class="fire-info-label">위치</span>
+        <span class="fire-info-value" id="alert-location">-</span>
+      </div>
+      <div class="fire-modal-info-row">
+        <span class="fire-info-label">발생 시간</span>
+        <span class="fire-info-value" id="alert-time">-</span>
+      </div>
+      <div class="fire-modal-info-row">
+        <span class="fire-info-label">신뢰도</span>
+        <span class="fire-info-value" id="alert-confidence">-</span>
+      </div>
     </div>
-    <div class="status-indicators">
-        <span class="indicator"><span class="dot-red"></span><span style="color:#ff4040;">REC</span></span>
-        <span class="indicator"><span class="dot-red"></span><span style="color:#ff6060;">LIVE</span></span>
-        <span class="indicator"><span class="dot-green"></span><span style="color:#40d090;">HD</span></span>
-        <span class="indicator" style="color:#5a7090;">📶</span>
-        <span style="color:#8090a8; font-size:0.82rem;" id="topbar-clock">--:--</span>
-        <a href="/member/signout_confirm" style="color:#5a7090; font-size:0.78rem; text-decoration:none;
-           padding:3px 10px; border:1px solid #2a3a50; border-radius:4px; margin-left:6px;" id="topbar-logout">
-            로그아웃
-        </a>
+    <div class="fire-modal-actions">
+      <button class="btn" id="fire-modal-confirm" onclick="closeFireModal()">확인</button>
+      <button class="btn" id="fire-modal-respond" onclick="startResponse()">대응 시작</button>
     </div>
+  </div>
 </div>
 
-<!-- ── 메인 레이아웃 (사이드바 + 콘텐츠) ── -->
-<div style="display:flex; flex:1; overflow:hidden;">
+<!-- 사이렌 오디오 -->
+<audio id="siren-audio" src="/static/audio/siren.mp3" loop></audio>
 
-    <!-- 좌측 아이콘 사이드바 -->
-    <nav class="monitor-sidebar" id="monitor-sidebar">
-        <a href="/dashboard/monitor" class="sidebar-icon active" title="실시간 관제" id="sb-monitor">📹</a>
-        <a href="/dashboard/history" class="sidebar-icon" title="감지 이력" id="sb-history">📋</a>
-        {% if session.get('signinedMemberRole') == 'admin' %}
-        <a href="/admin/members"  class="sidebar-icon" title="회원 관리" id="sb-admin-members">👥</a>
-        <a href="/admin/sms_logs" class="sidebar-icon" title="SMS 이력" id="sb-admin-sms">📨</a>
-        {% endif %}
-        <div style="flex:1;"></div>
-        <a href="/member/modify_form" class="sidebar-icon" title="내 정보" id="sb-myinfo">👤</a>
-        <a href="/member/signout_confirm" class="sidebar-icon" title="로그아웃" id="sb-logout">🚪</a>
-    </nav>
+<!-- 관제 화면 래퍼 -->
+<div class="monitor-wrapper" id="monitor-wrapper">
 
-    <!-- 오른쪽 콘텐츠 영역 -->
-    <div class="monitor-body" id="monitor-body">
-
-        <!-- ① 드론 영상 그리드 (main.png 상단 5칸) -->
-        <div class="drone-grid" id="drone-grid">
-            {% set drone_list = [
-                ('DR-01', '강릉 옥계'),
-                ('DR-02', '속초 설악'),
-                ('DR-03', '장흑 개원'),
-                ('DR-04', '평창 오대산'),
-                ('DR-05', '홍천 내촌')
-            ] %}
-            {% for drone_id, location in drone_list %}
-            <div class="drone-card" id="drone-card-{{ drone_id }}">
-                <div class="drone-card-header">
-                    <span>드론 {{ loop.index }}</span>
-                    <span class="drone-status-dot" style="background:#00e070;" id="drone-dot-{{ drone_id }}"></span>
-                </div>
-                <!-- 실시간 피드: DR-01만 실제 연결, 나머지는 플레이스홀더 -->
-                {% if loop.index == 1 %}
-                <img src="{{ url_for('dashboard.video_feed') }}"
-                     class="drone-feed-img" id="feed-{{ drone_id }}" alt="드론 1 피드"
-                     onerror="this.src='https://placehold.co/320x180/0d1520/3a4a60?text=No+Signal'">
-                {% else %}
-                <img src="https://placehold.co/320x180/090e18/2a3a54?text=DRONE+{{ loop.index }}"
-                     class="drone-feed-img" id="feed-{{ drone_id }}" alt="드론 {{ loop.index }} 피드">
-                {% endif %}
-                <div class="drone-card-footer" id="footer-{{ drone_id }}">{{ location }} 감시중</div>
-            </div>
-            {% endfor %}
-        </div>
-
-        <!-- ② 감지 로그 테이블 (main.png 하단) -->
-        <div class="log-section" id="log-section">
-            <div class="log-section-header" id="log-section-header">
-                <span>⚙</span>
-                <span>실시간 감지 로그</span>
-                <span style="margin-left:auto; color:#3a4a60; font-weight:400; font-size:0.78rem;" id="log-update-time">
-                    갱신: --:--:--
-                </span>
-                <button class="btn btn-sm" id="btn-sound-toggle"
-                        style="margin-left:12px; padding:2px 10px; font-size:0.75rem;
-                               background:#1a2030; border:1px solid #2a3a50; color:#8090a8; border-radius:4px;">
-                    🔇 사운드
-                </button>
-            </div>
-
-            <div class="log-table-wrap" id="log-table-wrap">
-                <table class="table table-dark table-striped table-hover m-0 text-center" id="log-table">
-                    <thead>
-                        <tr>
-                            <th>드론 ID</th>
-                            <th>감지 시간</th>
-                            <th>구분</th>
-                            <th>신뢰도</th>
-                            <th>위치</th>
-                        </tr>
-                    </thead>
-                    <tbody id="log-tbody">
-                        <tr id="no-log-row">
-                            <td colspan="5" class="text-muted py-4">최근 감지 이력이 없습니다.</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-    </div><!-- /.monitor-body -->
-</div><!-- /.flex wrapper -->
-
-<!-- ── 화재 비상 사이렌 오디오 ── -->
-<audio id="siren-audio" src="{{ url_for('static', filename='audio/siren.mp3') }}" loop preload="auto"></audio>
-
-<!-- ── 화면 점멸 오버레이 ── -->
-<div id="emergency-overlay" class="emergency-alert-overlay d-none"></div>
-
-<!-- ══════════════════════════════════════════
-     경고 팝업 (pop_up.png 스타일)
-══════════════════════════════════════════ -->
-<div class="fire-modal-overlay" id="fireAlertOverlay">
-    <div class="fire-modal" id="fireAlertModal" role="dialog" aria-modal="true">
-
-        <!-- 팝업 헤더 -->
-        <div class="fire-modal-header">
-            <div class="fire-modal-header-left">
-                <span style="font-size:1.3rem;">⚠</span>
-                <span>경고</span>
-            </div>
-            <div class="fire-modal-header-right">
-                <span style="animation: warning-pulse 0.8s infinite alternate; font-size:1rem;">🔴</span>
-                <span>WARNING</span>
-            </div>
-        </div>
-
-        <!-- 팝업 바디 -->
-        <div class="fire-modal-body">
-            <!-- 제목 -->
-            <div class="fire-modal-title-row">
-                <!-- 경고 삼각형 SVG -->
-                <div class="fire-triangle">
-                    <svg viewBox="0 0 100 90" xmlns="http://www.w3.org/2000/svg">
-                        <polygon points="50,5 95,85 5,85"
-                                 fill="none" stroke="#ff8800" stroke-width="6"
-                                 stroke-linejoin="round"/>
-                        <text x="50" y="75" text-anchor="middle"
-                              font-size="52" font-weight="900" fill="#ff8800">!</text>
-                    </svg>
-                </div>
-                <div class="fire-modal-title-text">산불 발생 감지!</div>
-            </div>
-
-            <hr class="fire-modal-divider">
-
-            <!-- 감지 정보: 드론 → 시간 → 위치 순 -->
-            <div class="fire-modal-info" id="fire-modal-info">
-                <div class="fire-info-row">
-                    <span class="fire-info-arrow">▶</span>
-                    <span class="fire-info-label">드론 ID</span>
-                    <span class="fire-info-value" id="popup-drone-id">DR-??</span>
-                </div>
-                <div class="fire-info-row">
-                    <span class="fire-info-arrow">▶</span>
-                    <span class="fire-info-label">감지 시간</span>
-                    <span class="fire-info-value" id="popup-detect-time">--:--:--</span>
-                </div>
-                <div class="fire-info-row">
-                    <span class="fire-info-arrow">▶</span>
-                    <span class="fire-info-label">위치</span>
-                    <span class="fire-info-value" id="popup-location">미상 지역</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- SMS 발송 결과 -->
-        <div class="sms-result-box" id="sms-result-box">
-            <div id="sms-result-title">📨 <strong>문자 발송 완료</strong></div>
-            <ul class="sms-recipients" id="sms-recipients-list"></ul>
-        </div>
-
-        <!-- 팝업 버튼 -->
-        <div class="fire-modal-footer">
-            <button class="btn-fire-confirm" id="btn-fire-confirm" onclick="closeFireModal()">확인</button>
-            <button class="btn-fire-action"  id="btn-fire-action"  onclick="sendAlert()">대응 조치</button>
-        </div>
-
+  <!-- 서브 헤더 -->
+  <div class="monitor-header" id="monitor-header">
+    <h1 class="monitor-title">관제 메인화면</h1>
+    <div class="monitor-weather" id="monitor-weather">
+      <div class="w-row">
+        <span class="w-label">날씨</span>
+        <span class="w-val" id="mon-date">-</span>
+      </div>
+      <div class="w-row">
+        <span class="w-label">시간</span>
+        <span class="w-val" id="mon-time">-</span>
+      </div>
     </div>
-</div>
+  </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <!-- 본체 -->
+  <div class="monitor-body" id="monitor-body">
+
+    <!-- 드론 그리드 4개 -->
+    <div class="drone-grid" id="drone-grid">
+      {% for drone in [
+          {'num': 1, 'id': 'DR-01', 'battery': 78},
+          {'num': 2, 'id': 'DR-02', 'battery': 65},
+          {'num': 3, 'id': 'DR-03', 'battery': 82},
+          {'num': 4, 'id': 'DR-04', 'battery': 81}
+      ] %}
+      <div class="drone-card" id="drone-card-{{ drone.num }}">
+        <div class="drone-card-header">
+          <span class="drone-label">DRONE {{ drone.num }}</span>
+          <div class="live-badge">
+            <div class="live-dot"></div> LIVE
+          </div>
+        </div>
+        <div class="drone-feed">
+          <img src="/dashboard/video_feed"
+               alt="DRONE {{ drone.num }} 피드"
+               id="drone-feed-{{ drone.num }}"
+               style="width:100%; height:100%; object-fit:cover;">
+        </div>
+        <div class="drone-card-footer">
+          <span class="drone-battery">배터리 <span>{{ drone.battery }}%</span></span>
+          <div class="drone-status">
+            <div class="status-dot"></div> 연결 중
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- 하단 2분할 -->
+    <div class="monitor-bottom" id="monitor-bottom">
+
+      <!-- 실시간 지도 -->
+      <div class="monitor-panel" id="map-panel">
+        <div class="panel-header">
+          <span class="panel-title">📍 실시간 지도</span>
+          <span style="font-size:0.7rem; color:var(--text-muted);">드론 위치 추적</span>
+        </div>
+        <div class="panel-body" style="padding:0;">
+          <div class="map-container" id="map-container">
+            <div class="map-grid"></div>
+
+            <!-- 드론 마커들 (위치는 CSS로 조정) -->
+            <div class="map-drone-marker" style="left:25%; top:60%;" id="marker-dr01">
+              <div class="drone-marker-dot ok"></div>
+              <div class="drone-marker-label">DR-01</div>
+            </div>
+            <div class="map-drone-marker" style="left:55%; top:35%;" id="marker-dr02">
+              <div class="drone-marker-dot ok"></div>
+              <div class="drone-marker-label">DR-02</div>
+            </div>
+            <div class="map-drone-marker" style="left:70%; top:55%;" id="marker-dr03">
+              <div class="drone-marker-dot fire"></div>
+              <div class="drone-marker-label">DR-03</div>
+            </div>
+            <div class="map-drone-marker" style="left:40%; top:75%;" id="marker-dr04">
+              <div class="drone-marker-dot ok"></div>
+              <div class="drone-marker-label">DR-04</div>
+            </div>
+
+            <!-- 화재 경고 삼각형 -->
+            <div class="map-warning" style="left:65%; top:48%;"
+                 id="map-warning-icon" title="화재 감지 구역">⚠️</div>
+
+            <!-- 지도 레이블 -->
+            <div style="position:absolute; bottom:10px; right:12px;
+                        font-size:0.65rem; color:var(--text-dim);
+                        font-family:var(--font-en);">
+              LIVE MAP · DRONE TRACKING
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 최근 로그 -->
+      <div class="monitor-panel" id="log-panel">
+        <div class="panel-header">
+          <span class="panel-title">📋 최근 로그</span>
+          <a href="/dashboard/history" style="font-size:0.72rem; color:var(--orange-main);">
+            전체 보기 →
+          </a>
+        </div>
+        <div class="panel-body" style="padding:0; overflow:auto;">
+          <table class="log-table" id="recent-log-table">
+            <thead>
+              <tr>
+                <th>No.</th>
+                <th>드론 ID</th>
+                <th>종류</th>
+                <th>위치</th>
+                <th>발생 시간</th>
+                <th>상태</th>
+              </tr>
+            </thead>
+            <tbody id="recent-log-tbody">
+              <tr>
+                <td colspan="6" style="text-align:center; color:var(--text-muted); padding:20px;">
+                  로그 로딩 중...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /monitor-bottom -->
+  </div><!-- /monitor-body -->
+</div><!-- /monitor-wrapper -->
+
+<script src="/static/js/dashboard.js"></script>
 </body>
 </html>

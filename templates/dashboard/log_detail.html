@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>상세 로그 — 드론 소방 관제 시스템</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+{% include 'include/nav.html' %}
+
+<div class="detail-wrapper" id="detail-wrapper">
+  <div class="detail-card" id="detail-card">
+
+    <div class="detail-card-header">
+      <span>상세 로그 정보</span>
+      <a href="/dashboard/history" class="btn btn-secondary btn-sm" id="to-list-btn">
+        목록으로
+      </a>
+    </div>
+
+    <!-- 화재 이미지 -->
+    <div class="detail-img-placeholder" id="detail-img-area">
+      🔥
+    </div>
+
+    <!-- 정보 -->
+    <div class="detail-info" id="detail-info">
+      <div class="detail-row">
+        <span class="detail-label">드론 ID</span>
+        <span class="detail-value" id="d-drone">{{ log.drone_id }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">종류</span>
+        <span class="detail-value">
+          {% if log.type == '화재' %}
+            <span class="badge badge-fire">{{ log.type }}</span>
+          {% else %}
+            <span class="badge badge-smoke">{{ log.type }}</span>
+          {% endif %}
+        </span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">위치</span>
+        <span class="detail-value" id="d-location">{{ log.location }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">발생 시간</span>
+        <span class="detail-value" id="d-time">{{ log.time }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">신뢰도</span>
+        <span class="detail-value text-fire" id="d-conf">
+          {{ (log.confidence * 100)|int }}%
+        </span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">상태</span>
+        <span class="detail-value">
+          {% if log.status == '대응중' %}
+            <span class="badge badge-active">{{ log.status }}</span>
+          {% else %}
+            <span class="badge badge-ok">{{ log.status }}</span>
+          {% endif %}
+        </span>
+      </div>
+    </div>
+
+    <!-- 액션 버튼 -->
+    <div class="detail-actions" id="detail-actions">
+      <button class="btn btn-secondary" id="discord-btn"
+              onclick="sendDiscord({{ log.id }})">
+        Discord 전송
+      </button>
+      <button class="btn btn-primary" id="sms-btn"
+              onclick="sendSms({{ log.id }})">
+        SMS 전송
+      </button>
+      <button class="btn btn-secondary" id="back-btn"
+              onclick="history.back()">
+        뒤로가기
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+async function sendSms(logId) {
+  const btn = document.getElementById('sms-btn');
+  btn.disabled = true; btn.textContent = '전송 중...';
+  try {
+    const res  = await fetch('/dashboard/api/send_sms', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({log_id: logId})
+    });
+    const data = await res.json();
+    alert(data.message);
+  } catch(e) { alert('전송 실패'); }
+  finally { btn.disabled = false; btn.textContent = 'SMS 전송'; }
+}
+
+async function sendDiscord(logId) {
+  const btn = document.getElementById('discord-btn');
+  btn.disabled = true; btn.textContent = '전송 중...';
+  try {
+    const res  = await fetch('/dashboard/api/send_discord', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({log_id: logId})
+    });
+    const data = await res.json();
+    alert(data.message);
+  } catch(e) { alert('전송 실패'); }
+  finally { btn.disabled = false; btn.textContent = 'Discord 전송'; }
+}
+</script>
+</body>
+</html>

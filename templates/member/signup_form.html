@@ -1,62 +1,116 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>소방 관제 시스템 - 회원 신청</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>사용자 등록 — 드론 소방 관제 시스템</title>
+  <link rel="stylesheet" href="/static/css/style.css">
 </head>
-<body class="bg-dark text-light d-flex flex-column min-vh-100">
+<body>
+{% include 'include/nav.html' %}
 
-    {% include 'include/header.html' %}
-    {% include 'include/nav.html' %}
+<main class="auth-page" id="signup-page">
+  <div class="auth-card" id="signup-card">
+    <h1 class="auth-title">사용자 등록</h1>
+    <p class="auth-subtitle">정보를 입력하고 승인을 요청하세요.</p>
 
-    <main class="container my-auto py-5" id="join-container">
-        <div class="row justify-content-center">
-            <div class="col-lg-5 col-md-8 col-sm-10">
-                <article class="card card-glass p-4" id="join-card">
-                    <h2 class="text-danger fw-bold text-center mb-1 text-uppercase" id="join-card-title">REGISTER SYSTEM USER</h2>
-                    <p class="text-center text-muted small mb-4">관리자 승인 후 시스템을 이용할 수 있습니다.</p>
-                    <form action="/member/signup" method="POST" id="join-form">
-                        <div class="mb-3">
-                            <label for="memberId" class="form-label text-muted">ID (아이디)</label>
-                            <input type="text" class="form-control bg-dark text-light border-secondary"
-                                   id="memberId" name="memberId" required placeholder="영문/숫자">
-                        </div>
-                        <div class="mb-3">
-                            <label for="memberPw" class="form-label text-muted">Password (비밀번호)</label>
-                            <input type="password" class="form-control bg-dark text-light border-secondary"
-                                   id="memberPw" name="memberPw" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="memberName" class="form-label text-muted">Name (이름)</label>
-                            <input type="text" class="form-control bg-dark text-light border-secondary"
-                                   id="memberName" name="memberName" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="memberPhone" class="form-label text-muted">Phone (전화번호)</label>
-                            <input type="tel" class="form-control bg-dark text-light border-secondary"
-                                   id="memberPhone" name="memberPhone" placeholder="010-0000-0000">
-                        </div>
-                        <div class="mb-4">
-                            <label for="memberEmail" class="form-label text-muted">Email (이메일)</label>
-                            <input type="email" class="form-control bg-dark text-light border-secondary"
-                                   id="memberEmail" name="memberEmail" placeholder="example@email.com">
-                        </div>
-                        <button type="submit" class="btn btn-danger w-100 fw-bold py-2 mb-3" id="btn-join-submit">신청 완료</button>
-                        <div class="text-center">
-                            <span class="text-muted small">이미 등록된 계정이 있나요? </span>
-                            <a href="/member/signin_form" class="text-danger text-decoration-none small fw-semibold" id="link-to-login">로그인 하기</a>
-                        </div>
-                    </form>
-                </article>
-            </div>
+    {% if error %}
+    <div class="auth-error show" id="signup-error">{{ error }}</div>
+    {% endif %}
+
+    {% if success %}
+    <div class="auth-success show" id="signup-success">
+      승인 요청이 완료되었습니다.<br>관리자 승인 후 로그인이 가능합니다.
+    </div>
+    {% endif %}
+
+    <form id="signup-form" method="POST" action="/member/signup" novalidate>
+      <!-- ID -->
+      <div class="id-check-row">
+        <div style="position:relative; flex:1;">
+          <span class="input-icon">👤</span>
+          <input class="form-input" type="text" id="mId" name="mId"
+                 placeholder="ID를 입력하세요" required>
         </div>
-    </main>
+        <button type="button" class="btn btn-outline btn-sm" id="check-id-btn"
+                onclick="checkId()">중복확인</button>
+      </div>
+      <div id="id-check-msg" style="font-size:0.75rem; margin:-8px 0 12px; padding-left:4px;"></div>
 
-    {% include 'include/footer.html' %}
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+      <div class="input-group">
+        <span class="input-icon">🔒</span>
+        <input class="form-input" type="password" id="mPw" name="mPw"
+               placeholder="PW를 입력하세요" required>
+      </div>
+      <div class="input-group">
+        <span class="input-icon">🔒</span>
+        <input class="form-input" type="password" id="mPw2" name="mPw2"
+               placeholder="PW를 다시 입력하세요" required>
+      </div>
+      <div class="input-group">
+        <span class="input-icon">✉️</span>
+        <input class="form-input" type="email" id="mEmail" name="mEmail"
+               placeholder="E-MAIL을 입력하세요" required>
+      </div>
+      <div class="input-group">
+        <span class="input-icon">📞</span>
+        <input class="form-input" type="tel" id="mPhone" name="mPhone"
+               placeholder="PHONE을 입력하세요" required>
+      </div>
+      <!-- 이름 -->
+      <div class="input-group">
+        <span class="input-icon">📋</span>
+        <input class="form-input" type="text" id="mName" name="mName"
+               placeholder="이름을 입력하세요" required>
+      </div>
+
+      <div class="form-actions">
+        <button type="reset" class="btn btn-secondary" id="reset-btn">초기화</button>
+        <button type="submit" class="btn btn-primary" id="signup-submit-btn">승인 요청</button>
+      </div>
+    </form>
+
+    <div class="form-links">
+      <a href="/member/signin_form" class="form-link" id="goto-signin">이미 계정이 있으신가요? 로그인</a>
+    </div>
+  </div>
+</main>
+
+<script>
+let idAvailable = false;
+
+async function checkId() {
+  const mId = document.getElementById('mId').value.trim();
+  const msg  = document.getElementById('id-check-msg');
+  if (!mId) { msg.textContent = 'ID를 먼저 입력해주세요.'; msg.style.color = 'var(--red-bright)'; return; }
+
+  const formData = new FormData();
+  formData.append('mId', mId);
+  const res  = await fetch('/member/check_id', { method: 'POST', body: formData });
+  const data = await res.json();
+  if (data.available) {
+    msg.textContent = '사용 가능한 ID입니다.';
+    msg.style.color = 'var(--success)';
+    idAvailable = true;
+  } else {
+    msg.textContent = '이미 사용 중인 ID입니다.';
+    msg.style.color = 'var(--red-bright)';
+    idAvailable = false;
+  }
+}
+
+document.getElementById('signup-form').addEventListener('submit', function(e) {
+  const pw  = document.getElementById('mPw').value;
+  const pw2 = document.getElementById('mPw2').value;
+  if (pw !== pw2) {
+    e.preventDefault();
+    const err = document.getElementById('signup-error') || document.createElement('div');
+    err.id = 'signup-error';
+    err.className = 'auth-error show';
+    err.textContent = '비밀번호가 일치하지 않습니다.';
+    document.getElementById('signup-form').prepend(err);
+  }
+});
+</script>
 </body>
 </html>

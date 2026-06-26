@@ -1,13 +1,12 @@
-from flask import Blueprint, render_template, session, redirect, url_for, request, jsonify
-from utils.json_manager import load_members, save_members, load_sms_logs
+from flask import Blueprint, render_template, request, redirect, session, url_for, jsonify
+from utils.json_manager import load_members, save_members, load_notices, save_notices, get_next_notice_id
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
 
 def require_admin():
-    """관리자가 아닌 경우 None 이 아닌 redirect 객체를 반환"""
     if session.get("signinedMemberRole") != "admin":
-        return redirect(url_for("dashboard.monitor"))
+        return redirect(url_for("auth.signin_form"))
     return None
 
 
@@ -17,15 +16,17 @@ def members():
     if check:
         return check
     all_members = load_members()
-    # admin 제외하고 리스트로 변환
-    member_list = [
+    pending = [
         {"id": mid, **info}
         for mid, info in all_members.items()
-        if info.get("role") != "admin"
+        if not info.get("approved", False)
     ]
-    # 미승인 먼저 정렬
-    member_list.sort(key=lambda x: (x.get("approved", False), x["id"]))
-    return render_template("admin/members.html", members=member_list)
+    approved = [
+        {"id": mid, **info}
+        for mid, info in all_members.items()
+        if info.get("approved", False)
+    ]
+    return render_template("admin/members.html", pending=pending, approved=approved)
 
 
 @admin_bp.route("/approve/<member_id>", methods=["POST"])
@@ -46,8 +47,8 @@ def reject(member_id):
     if check:
         return check
     members = load_members()
-    if member_id in members and members[member_id].get("role") != "admin":
-        members[member_id]["approved"] = False
+    if member_id in members:
+        del members[member_id]
         save_members(members)
     return redirect(url_for("admin.members"))
 
@@ -58,16 +59,44 @@ def delete_member(member_id):
     if check:
         return check
     members = load_members()
-    if member_id in members and members[member_id].get("role") != "admin":
+    if member_id in members:
         del members[member_id]
         save_members(members)
     return redirect(url_for("admin.members"))
 
 
-@admin_bp.route("/sms_logs")
-def sms_logs():
+@admin_bp.route("/notice/write", methods=["GET", "POST"])
+def write_notice():
     check = require_admin()
     if check:
         return check
-    logs = list(reversed(load_sms_logs()))
-    return render_template("admin/sms_logs.html", logs=logs)
+    if request.method == "POST":
+        title   = request.form.get("title",   "").strip()
+        content = request.form.get("content", "").strip()
+        pinned  = request.form.get("pinned") == "on"
+        notices = load_notices()
+        notice_id = get_next_notice_id()
+        from datetime import datetime
+        notices.append({
+            "id":          notice_id,
+            "title":       title,
+            "content":     content,
+            "author":      session.get("signinedMemberId"),
+            "author_name": session.get("signinedMemberName", "관리자"),
+            "created_at":  datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "pinned":      pinned,
+        })
+        save_notices(notices)
+        return redirect(url_for("notice.list_notices"))
+    return render_template("notice/write.html")
+
+
+@admin_bp.route("/notice/delete/<int:notice_id>", methods=["POST"])
+def delete_notice(notice_id):
+    check = require_admin()
+    if check:
+        return check
+    notices = load_notices()
+    notices = [n for n in notices if n["id"] != notice_id]
+    save_notices(notices)
+    return redirect(url_for("notice.list_notices"))

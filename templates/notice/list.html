@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>공지사항 — 드론 소방 관제 시스템</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+{% include 'include/nav.html' %}
+
+<div class="notice-wrapper" id="notice-wrapper">
+  <div class="notice-container" id="notice-container">
+
+    <div class="notice-header" id="notice-header">
+      <h1 class="notice-page-title">📢 공지사항</h1>
+      {% if session.get('signinedMemberRole') == 'admin' %}
+      <a href="/admin/notice/write" class="btn btn-primary btn-sm" id="write-btn">
+        + 공지 작성
+      </a>
+      {% endif %}
+    </div>
+
+    <div class="notice-list" id="notice-list">
+      {% for n in notices %}
+      <a href="/notice/{{ n.id }}"
+         class="notice-item {{ 'pinned' if n.pinned else '' }}"
+         id="notice-item-{{ n.id }}">
+        <span class="notice-pin">{{ '📌' if n.pinned else '' }}</span>
+        <span class="notice-item-title">{{ n.title }}</span>
+        <span class="notice-meta">{{ n.created_at[:10] }}</span>
+      </a>
+      {% else %}
+      <div style="padding:40px; text-align:center; color:var(--text-muted);">
+        등록된 공지사항이 없습니다.
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, session, url_for
+from flask import Blueprint, render_template, request, redirect, session, url_for, jsonify
 from utils.json_manager import load_members, save_members
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/member")
@@ -6,29 +6,34 @@ auth_bp = Blueprint("auth", __name__, url_prefix="/member")
 
 @auth_bp.route("/signin_form")
 def signin_form():
+    if session.get("signinedMemberId"):
+        return redirect("/")
     return render_template("member/signin_form.html")
 
 
 @auth_bp.route("/signin", methods=["POST"])
 def signin():
-    member_id = request.form.get("memberId", "").strip()
-    member_pw = request.form.get("memberPw", "").strip()
+    """AJAX 로그인 처리 — JSON 응답"""
+    m_id = request.form.get("mId", "").strip()
+    m_pw = request.form.get("mPw", "").strip()
 
     members = load_members()
+    member  = members.get(m_id)
 
-    if member_id not in members or members[member_id]["pw"] != member_pw:
-        return "<script>alert('아이디 또는 비밀번호가 틀렸습니다.'); history.back();</script>"
+    if not member or member.get("pw") != m_pw:
+        return jsonify({"success": False, "message": "id_pw_mismatch"})
 
-    member = members[member_id]
+    session["signinedMemberId"]   = m_id
+    session["signinedMemberName"] = member.get("name", m_id)
+    session["signinedMemberRole"] = member.get("role", "user")
 
-    # 미승인 회원 차단
     if not member.get("approved", False):
-        return render_template("member/pending.html"), 403
+        return jsonify({"success": True, "redirect": "/?pending=1"})
 
-    session["signinedMemberId"]   = member_id
-    session["signinedMemberName"] = member["name"]
-    session["signinedMemberRole"] = member.get("role", "member")
-    return redirect(url_for("dashboard.monitor"))
+    if member.get("role") == "admin":
+        return jsonify({"success": True, "redirect": url_for("admin.members")})
+
+    return jsonify({"success": True, "redirect": "/"})
 
 
 @auth_bp.route("/signup_form")
@@ -38,33 +43,40 @@ def signup_form():
 
 @auth_bp.route("/signup", methods=["POST"])
 def signup():
-    member_id   = request.form.get("memberId",   "").strip()
-    member_pw   = request.form.get("memberPw",   "").strip()
-    member_name = request.form.get("memberName", "").strip()
-    member_phone = request.form.get("memberPhone", "").strip()
-    member_email = request.form.get("memberEmail", "").strip()
+    m_id    = request.form.get("mId",    "").strip()
+    m_pw    = request.form.get("mPw",    "").strip()
+    m_pw2   = request.form.get("mPw2",   "").strip()
+    m_name  = request.form.get("mName",  "").strip()
+    m_email = request.form.get("mEmail", "").strip()
+    m_phone = request.form.get("mPhone", "").strip()
 
     members = load_members()
 
-    if member_id in members:
-        return "<script>alert('이미 존재하는 아이디입니다.'); history.back();</script>"
+    if m_id in members:
+        return render_template("member/signup_form.html", error="이미 사용 중인 ID입니다.")
+    if m_pw != m_pw2:
+        return render_template("member/signup_form.html", error="비밀번호가 일치하지 않습니다.")
+    if not all([m_id, m_pw, m_name, m_email, m_phone]):
+        return render_template("member/signup_form.html", error="모든 항목을 입력해 주세요.")
 
-    members[member_id] = {
-        "pw":       member_pw,
-        "name":     member_name,
-        "phone":    member_phone,
-        "email":    member_email,
-        "role":     "member",
-        "approved": False          # 관리자 승인 대기
+    members[m_id] = {
+        "pw":       m_pw,
+        "name":     m_name,
+        "email":    m_email,
+        "phone":    m_phone,
+        "role":     "user",
+        "approved": False,
     }
     save_members(members)
-    return render_template("member/pending.html", just_registered=True)
+    return render_template("member/signup_form.html", success=True)
 
 
-@auth_bp.route("/signout_confirm")
-def signout_confirm():
-    session.clear()
-    return redirect(url_for("auth.signin_form"))
+@auth_bp.route("/check_id", methods=["POST"])
+def check_id():
+    """ID 중복 체크 AJAX"""
+    m_id    = request.form.get("mId", "").strip()
+    members = load_members()
+    return jsonify({"available": m_id not in members and bool(m_id)})
 
 
 @auth_bp.route("/modify_form")
@@ -73,8 +85,8 @@ def modify_form():
     if not member_id:
         return redirect(url_for("auth.signin_form"))
     members = load_members()
-    member_info = members.get(member_id, {})
-    return render_template("member/modify_form.html", member_info=member_info)
+    member  = members.get(member_id, {})
+    return render_template("member/modify_form.html", member=member, member_id=member_id)
 
 
 @auth_bp.route("/modify", methods=["POST"])
@@ -83,37 +95,26 @@ def modify():
     if not member_id:
         return redirect(url_for("auth.signin_form"))
 
-    member_pw    = request.form.get("memberPw",    "").strip()
-    member_name  = request.form.get("memberName",  "").strip()
-    member_phone = request.form.get("memberPhone", "").strip()
-    member_email = request.form.get("memberEmail", "").strip()
+    m_pw    = request.form.get("mPw",    "").strip()
+    m_email = request.form.get("mEmail", "").strip()
+    m_phone = request.form.get("mPhone", "").strip()
 
     members = load_members()
-    if member_id in members:
-        members[member_id]["pw"]    = member_pw
-        members[member_id]["name"]  = member_name
-        members[member_id]["phone"] = member_phone
-        members[member_id]["email"] = member_email
-        save_members(members)
-        session["signinedMemberName"] = member_name
-        return "<script>alert('정보가 수정되었습니다.'); location.href='/dashboard/monitor';</script>"
-    return "<script>alert('오류가 발생했습니다.'); history.back();</script>"
+    member  = members.get(member_id, {})
+
+    if m_pw:
+        member["pw"] = m_pw
+    if m_email:
+        member["email"] = m_email
+    if m_phone:
+        member["phone"] = m_phone
+
+    members[member_id] = member
+    save_members(members)
+    return jsonify({"success": True, "message": "정보가 변경되었습니다."})
 
 
-@auth_bp.route("/delete_confirm")
-def delete_confirm():
-    member_id = session.get("signinedMemberId")
-    if not member_id:
-        return redirect(url_for("auth.signin_form"))
-
-    # 관리자 계정은 삭제 불가
-    members = load_members()
-    if members.get(member_id, {}).get("role") == "admin":
-        return "<script>alert('관리자 계정은 삭제할 수 없습니다.'); history.back();</script>"
-
-    if member_id in members:
-        del members[member_id]
-        save_members(members)
-        session.clear()
-        return "<script>alert('회원 탈퇴가 완료되었습니다.'); location.href='/member/signin_form';</script>"
-    return "<script>alert('오류가 발생했습니다.'); history.back();</script>"
+@auth_bp.route("/signout")
+def signout():
+    session.clear()
+    return redirect("/")

@@ -1,8 +1,82 @@
 [
     {
-        "time": "2026-06-23 15:41:18",
-        "type": "FIRE",
-        "confidence": 0.93,
-        "drone_id": "DR-03"
+        "id": 1,
+        "time": "2024-05-20 14:35:22",
+        "drone_id": "DR-03",
+        "type": "\ud654\uc7ac",
+        "location": "\uac15\uc6d0\ub3c4 \uc778\uc81c\uad70 \ubd81\uba74",
+        "confidence": 0.97,
+        "status": "\ud655\uc778",
+        "message": "\ud654\uc7ac \uac10\uc9c0\ub428"
+    },
+    {
+        "id": 2,
+        "time": "2024-05-20 14:30:11",
+        "drone_id": "DR-01",
+        "type": "\uc5f0\uae30",
+        "location": "\uac15\uc6d0\ub3c4 \uc591\uc591\uad70",
+        "confidence": 0.90,
+        "status": "\ud655\uc778",
+        "message": "\uc5f0\uae30 \uac10\uc9c0\ub428"
+    },
+    {
+        "id": 3,
+        "time": "2024-05-20 14:25:09",
+        "drone_id": "DR-02",
+        "type": "\ud654\uc7ac",
+        "location": "\uac15\uc6d0\ub3c4 \ud649\uccb4\uad70",
+        "confidence": 0.95,
+        "status": "\ub300\uc751\uc911",
+        "message": "\ud654\uc7ac \uac10\uc9c0\ub428"
+    },
+    {
+        "id": 4,
+        "time": "2024-05-20 14:20:05",
+        "drone_id": "DR-04",
+        "type": "\uc5f0\uae30",
+        "location": "\uac15\uc6d0\ub3c4 \uace0\uc131\uad70",
+        "confidence": 0.86,
+        "status": "\ud655\uc778",
+        "message": "\uc5f0\uae30 \uac10\uc9c0\ub428"
+    },
+    {
+        "id": 5,
+        "time": "2024-05-20 14:15:45",
+        "drone_id": "DR-03",
+        "type": "\ud654\uc7ac",
+        "location": "\uac15\uc6d0\ub3c4 \uc778\uc81c\uad70",
+        "confidence": 0.96,
+        "status": "\ud655\uc778",
+        "message": "\ud654\uc7ac \uac10\uc9c0\ub428"
+    },
+    {
+        "id": 6,
+        "time": "2024-05-20 14:10:30",
+        "drone_id": "DR-01",
+        "type": "\uc5f0\uae30",
+        "location": "\uac15\uc6d0\ub3c4 \uc591\uc591\uad70",
+        "confidence": 0.85,
+        "status": "\ud655\uc778",
+        "message": "\uc5f0\uae30 \uac10\uc9c0\ub428"
+    },
+    {
+        "id": 7,
+        "time": "2024-05-19 11:22:10",
+        "drone_id": "DR-02",
+        "type": "\ud654\uc7ac",
+        "location": "\uac15\uc6d0\ub3c4 \uc18d\ucd08\uc2dc \uc124\uc545\ub3d9",
+        "confidence": 0.92,
+        "status": "\ud655\uc778",
+        "message": "\ud654\uc7ac \uac10\uc9c0\ub428"
+    },
+    {
+        "id": 8,
+        "time": "2024-05-19 09:45:33",
+        "drone_id": "DR-04",
+        "type": "\uc5f0\uae30",
+        "location": "\uac15\uc6d0\ub3c4 \ud3c9\ucc3d \uc624\ub300\uc0b0",
+        "confidence": 0.88,
+        "status": "\ud655\uc778",
+        "message": "\uc5f0\uae30 \uac10\uc9c0\ub428"
     }
 ]

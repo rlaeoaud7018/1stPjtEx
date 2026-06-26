@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>공지 작성 — 드론 소방 관제 시스템</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+{% include 'include/nav.html' %}
+
+<div class="notice-wrapper" id="notice-write-wrapper">
+  <div class="notice-container" id="notice-write-container">
+
+    <div class="notice-write-card" id="notice-write-card">
+      <div class="notice-write-title">📝 공지 작성</div>
+
+      <form method="POST" action="/admin/notice/write" id="write-form">
+        <div class="form-group">
+          <label class="form-label" for="write-title">제목</label>
+          <input class="form-input" type="text" name="title" id="write-title"
+                 placeholder="공지 제목을 입력하세요" required style="padding-left:14px;">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="write-content">내용</label>
+          <textarea class="form-textarea" name="content" id="write-content"
+                    placeholder="공지 내용을 입력하세요." required></textarea>
+        </div>
+        <div class="form-group">
+          <label class="checkbox-row">
+            <input type="checkbox" name="pinned" id="write-pinned">
+            <span>📌 상단 고정</span>
+          </label>
+        </div>
+        <div class="form-actions" style="margin-top:24px;">
+          <a href="/notice/" class="btn btn-secondary" id="cancel-write-btn">취소</a>
+          <button type="submit" class="btn btn-primary" id="submit-write-btn">
+            등록하기
+          </button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

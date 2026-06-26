@@ -1,56 +1,43 @@
-<!-- nav.html [공통 네비게이션 바] -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-black py-3 border-bottom border-secondary" id="common-nav">
-    <div class="container-fluid px-4">
-        <a class="navbar-brand text-danger fw-bold" href="/" id="nav-brand-logo">🔥 FIRE CONTROL</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
-                aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarContent">
-            <ul class="navbar-nav ms-auto mb-2 mb-lg-0 gap-1" id="nav-list">
+<nav id="main-nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo" id="nav-logo">
+      <span class="logo-icon">🔥</span>
+      <div class="logo-text">
+        <span class="logo-title">DRONE <span class="text-fire">FIRE</span> CONTROL SYSTEM</span>
+        <span class="logo-sub">AI 기반 산불 감시 및 드론 관제 시스템</span>
+      </div>
+    </a>
 
-                {% if not session.get('signinedMemberId') %}
-                    <li class="nav-item"><a class="nav-link" href="/member/signin_form" id="nav-link-login">로그인</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/member/signup_form" id="nav-link-join">회원 신청</a></li>
+    <ul class="nav-menu" id="nav-menu">
+      <li>
+        <a href="/" id="nav-home"
+           class="nav-link {{ 'active' if request.path == '/' else '' }}">
+          관제 시스템
+        </a>
+      </li>
+      <li>
+        <a href="/dashboard/monitor" id="nav-monitor"
+           class="nav-link {{ 'active' if '/dashboard/monitor' in request.path else '' }}">
+          실시간 모니터링
+        </a>
+      </li>
+      <li>
+        <a href="/dashboard/history" id="nav-history"
+           class="nav-link {{ 'active' if '/dashboard/history' in request.path else '' }}">
+          통계 분석
+        </a>
+      </li>
+      <li>
+        <a href="/notice/" id="nav-notice"
+           class="nav-link {{ 'active' if '/notice' in request.path else '' }}">
+          공지사항
+        </a>
+      </li>
+    </ul>
 
-                {% else %}
-                    <!-- 공통 메뉴 -->
-                    <li class="nav-item">
-                        <a class="nav-link" href="/dashboard/monitor" id="nav-link-dashboard">📹 실시간 관제</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/dashboard/history" id="nav-link-history">📋 감지 이력</a>
-                    </li>
-
-                    <!-- 관리자 전용 메뉴 -->
-                    {% if session.get('signinedMemberRole') == 'admin' %}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle text-warning" href="#" role="button"
-                           data-bs-toggle="dropdown" id="nav-link-admin">⚙ 관리자</a>
-                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
-                            <li><a class="dropdown-item" href="/admin/members" id="nav-admin-members">👥 회원 관리</a></li>
-                            <li><a class="dropdown-item" href="/admin/sms_logs" id="nav-admin-sms">📨 SMS 발송 이력</a></li>
-                        </ul>
-                    </li>
-                    {% endif %}
-
-                    <!-- 내 계정 -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle text-light" href="#" role="button"
-                           data-bs-toggle="dropdown" id="nav-link-user">
-                            👤 {{ session.get('signinedMemberName') }}님
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
-                            <li><a class="dropdown-item" href="/member/modify_form" id="nav-modify">정보 수정</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-warning" href="/member/signout_confirm" id="nav-logout">로그아웃</a></li>
-                            <li><a class="dropdown-item text-danger" href="/member/delete_confirm"
-                                   onclick="return confirm('정말 탈퇴하시겠습니까?')" id="nav-delete">회원탈퇴</a></li>
-                        </ul>
-                    </li>
-                {% endif %}
-
-            </ul>
-        </div>
-    </div>
+    <button class="nav-hamburger" id="nav-hamburger"
+            onclick="document.getElementById('nav-menu').classList.toggle('open')">
+      ☰
+    </button>
+  </div>
 </nav>
