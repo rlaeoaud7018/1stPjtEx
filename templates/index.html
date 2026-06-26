@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,52 +8,52 @@
   <meta name="description" content="AI 기반 산불 감시 및 드론 관제 시스템 — 실시간 감지, AI 화재 탐지, 신속 대응">
   <link rel="stylesheet" href="/static/css/style.css">
 </head>
+
 <body>
 
-{% include 'include/nav.html' %}
+  {% include 'include/nav.html' %}
 
-<!-- 미승인 팝업 -->
-{% if show_pending %}
-<div class="modal-overlay" id="pending-modal">
-  <div class="modal-box">
-    <div class="modal-title">대원 로그인 후</div>
-    <div class="modal-check">
-      <span>✅</span> 대원 로그인이 완료되었습니다.
-    </div>
-    <div class="modal-hourglass">⏳</div>
-    <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">대원 로그인</div>
-    <div class="modal-message">
-      승인 대기 중입니다.<br>관리자의 승인을 기다려주세요.
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-secondary" onclick="location.reload()">새로고침</button>
-      <button class="btn btn-primary"
-              onclick="document.getElementById('pending-modal').classList.add('hidden')">
-        닫기
-      </button>
+  <!-- 미승인 팝업 -->
+  {% if show_pending %}
+  <div class="modal-overlay" id="pending-modal">
+    <div class="modal-box">
+      <div class="modal-title">대원 로그인 후</div>
+      <div class="modal-check">
+        <span>✅</span> 대원 로그인이 완료되었습니다.
+      </div>
+      <div class="modal-hourglass">⏳</div>
+      <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">대원 로그인</div>
+      <div class="modal-message">
+        승인 대기 중입니다.<br>관리자의 승인을 기다려주세요.
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="location.reload()">새로고침</button>
+        <button class="btn btn-primary" onclick="document.getElementById('pending-modal').classList.add('hidden')">
+          닫기
+        </button>
+      </div>
     </div>
   </div>
-</div>
-{% endif %}
+  {% endif %}
 
-<!-- 히어로 섹션 -->
-<section class="hero" id="hero">
-  <div class="hero-bg"></div>
-  <div class="hero-overlay"></div>
+  <!-- 히어로 섹션 -->
+  <section class="hero" id="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
 
-  <!-- 현재 시간 (우측 상단) -->
-  <div class="hero-clock" id="hero-clock">
-    <div class="clock-label" id="clock-date">2024.05.20 (월)</div>
-    <div class="clock-time" id="clock-time">14:35:22</div>
-  </div>
+    <!-- 현재 시간 (우측 상단) -->
+    <div class="hero-clock" id="hero-clock">
+      <div class="clock-label" id="clock-date">2024.05.20 (월)</div>
+      <div class="clock-time" id="clock-time">14:35:22</div>
+    </div>
 
-  <!-- 히어로 콘텐츠 -->
-  <div class="hero-content">
-    <div class="hero-badge">🔥 FIRE MONITORING SYSTEM</div>
-    <h1 class="hero-title">AI 기반 산불 감시 및<br>드론 관제 시스템</h1>
-    <p class="hero-subtitle">실시간 감지 · AI 화재 탐지 · 신속 대응</p>
+    <!-- 히어로 콘텐츠 -->
+    <div class="hero-content">
+      <div class="hero-badge">🔥 FIRE MONITORING SYSTEM</div>
+      <h1 class="hero-title">AI 기반 산불 감시 및<br>드론 관제 시스템</h1>
+      <p class="hero-subtitle">실시간 감지 · AI 화재 탐지 · 신속 대응</p>
 
-    {% if member_id %}
+      {% if member_id %}
       <!-- 로그인 상태 -->
       <a href="/member/modify_form" class="hero-welcome" id="welcome-btn">
         <span>👤</span>
@@ -62,11 +63,10 @@
       <div style="margin-bottom:30px;">
         <a href="/member/signout" class="btn btn-secondary btn-sm" id="signout-btn">로그아웃</a>
         {% if session.get('signinedMemberRole') == 'admin' %}
-        <a href="/admin/members" class="btn btn-outline btn-sm" id="admin-btn"
-           style="margin-left:8px;">관리자 패널</a>
+        <a href="/admin/members" class="btn btn-outline btn-sm" id="admin-btn" style="margin-left:8px;">관리자 패널</a>
         {% endif %}
       </div>
-    {% else %}
+      {% else %}
       <!-- 비로그인 상태 -->
       <div class="hero-actions">
         <a href="/member/signin_form" class="btn btn-primary" id="login-btn">
@@ -76,116 +76,114 @@
           👥 사용자 등록
         </a>
       </div>
-    {% endif %}
+      {% endif %}
 
-    <!-- 공지 마퀴 -->
-    <div class="hero-notice">
-      <span class="notice-icon">📢</span>
-      <span style="color:var(--orange-main); font-size:0.78rem; font-weight:600; margin-right:6px;">
-        공지사항
-      </span>
-      <div class="notice-ticker">
-        <marquee scrollamount="3">
-          {% for n in notices %}
+      <!-- 공지 마퀴 -->
+      <div class="hero-notice">
+        <span class="notice-icon">📢</span>
+        <span style="color:var(--orange-main); font-size:0.78rem; font-weight:600; margin-right:6px;">
+          공지사항
+        </span>
+        <div class="notice-ticker">
+          <marquee scrollamount="3">
+            {% for n in notices %}
             {{ n.title }}{% if not loop.last %}&nbsp;&nbsp;|&nbsp;&nbsp;{% endif %}
-          {% else %}
+            {% else %}
             등록된 공지사항이 없습니다.
-          {% endfor %}
-        </marquee>
-      </div>
-    </div>
-  </div>
-
-  <!-- 캐러셀 점 (데코) -->
-  <div class="hero-carousel-dots">
-    <div class="carousel-dot active"></div>
-    <div class="carousel-dot"></div>
-    <div class="carousel-dot"></div>
-    <div class="carousel-dot"></div>
-    <span style="color:var(--text-dim); font-size:0.9rem; margin-left:4px;">⏸</span>
-  </div>
-</section>
-
-<!-- 통계 섹션 -->
-<section class="stats-section" id="stats-section">
-  <div class="stats-header">
-    <div class="stats-header-title">
-      📈 산불 발생 현황
-    </div>
-    <div class="stats-header-period">
-      기간 : 2026.01.01 ~ 2026.06.25
-    </div>
-  </div>
-
-  <div class="stats-cards">
-    <!-- 발생건수 -->
-    <div class="stat-card" id="stat-fire-count">
-      <div class="stat-ring-wrap">
-        <svg class="stat-ring-svg" viewBox="0 0 72 72">
-          <circle class="stat-ring-track" cx="36" cy="36" r="30"/>
-          <circle class="stat-ring-progress ring-fire" cx="36" cy="36" r="30"
-                  style="stroke-dashoffset: 50;"/>
-        </svg>
-        <div class="stat-ring-icon">🌲</div>
-      </div>
-      <div class="stat-info">
-        <div class="stat-label">발생건수</div>
-        <div class="stat-value">
-          <span class="stat-number">{{ total_count }}</span>
-          <span class="stat-unit">건</span>
+            {% endfor %}
+          </marquee>
         </div>
-        <div class="stat-change up">▲ 전년 대비 12.5%</div>
       </div>
     </div>
 
-    <!-- 피해면적 -->
-    <div class="stat-card" id="stat-area">
-      <div class="stat-ring-wrap">
-        <svg class="stat-ring-svg" viewBox="0 0 72 72">
-          <circle class="stat-ring-track" cx="36" cy="36" r="30"/>
-          <circle class="stat-ring-progress ring-area" cx="36" cy="36" r="30"
-                  style="stroke-dashoffset: 70;"/>
-        </svg>
-        <div class="stat-ring-icon">📍</div>
+    <!-- 캐러셀 점 (데코) -->
+    <div class="hero-carousel-dots">
+      <div class="carousel-dot active"></div>
+      <div class="carousel-dot"></div>
+      <div class="carousel-dot"></div>
+      <div class="carousel-dot"></div>
+      <span style="color:var(--text-dim); font-size:0.9rem; margin-left:4px;">⏸</span>
+    </div>
+  </section>
+
+  <!-- 통계 섹션 -->
+  <section class="stats-section" id="stats-section">
+    <div class="stats-header">
+      <div class="stats-header-title">
+        📈 산불 발생 현황
       </div>
-      <div class="stat-info">
-        <div class="stat-label">피해면적</div>
-        <div class="stat-value">
-          <span class="stat-number">722</span>
-          <span class="stat-unit">ha</span>
+      <div class="stats-header-period">
+        기간 : 2026.01.01 ~ 2026.06.25
+      </div>
+    </div>
+
+    <div class="stats-cards">
+      <!-- 발생건수 -->
+      <div class="stat-card" id="stat-fire-count">
+        <div class="stat-ring-wrap">
+          <svg class="stat-ring-svg" viewBox="0 0 72 72">
+            <circle class="stat-ring-track" cx="36" cy="36" r="30" />
+            <circle class="stat-ring-progress ring-fire" cx="36" cy="36" r="30" style="stroke-dashoffset: 50;" />
+          </svg>
+          <div class="stat-ring-icon">🌲</div>
         </div>
-        <div class="stat-change up">▲ 전년 대비 8.3%</div>
-      </div>
-    </div>
-
-    <!-- 피해액 -->
-    <div class="stat-card" id="stat-damage">
-      <div class="stat-ring-wrap">
-        <svg class="stat-ring-svg" viewBox="0 0 72 72">
-          <circle class="stat-ring-track" cx="36" cy="36" r="30"/>
-          <circle class="stat-ring-progress ring-damage" cx="36" cy="36" r="30"
-                  style="stroke-dashoffset: 30;"/>
-        </svg>
-        <div class="stat-ring-icon">💰</div>
-      </div>
-      <div class="stat-info">
-        <div class="stat-label">피해액</div>
-        <div class="stat-value">
-          <span class="stat-number">49,220</span>
-          <span class="stat-unit">백만원</span>
+        <div class="stat-info">
+          <div class="stat-label">발생건수</div>
+          <div class="stat-value">
+            <span class="stat-number">{{ total_count }}</span>
+            <span class="stat-unit">건</span>
+          </div>
+          <div class="stat-change up">▲ 전년 대비 12.5%</div>
         </div>
-        <div class="stat-change up">▲ 전년 대비 15.7%</div>
+      </div>
+
+      <!-- 피해면적 -->
+      <div class="stat-card" id="stat-area">
+        <div class="stat-ring-wrap">
+          <svg class="stat-ring-svg" viewBox="0 0 72 72">
+            <circle class="stat-ring-track" cx="36" cy="36" r="30" />
+            <circle class="stat-ring-progress ring-area" cx="36" cy="36" r="30" style="stroke-dashoffset: 70;" />
+          </svg>
+          <div class="stat-ring-icon">📍</div>
+        </div>
+        <div class="stat-info">
+          <div class="stat-label">피해면적</div>
+          <div class="stat-value">
+            <span class="stat-number">722</span>
+            <span class="stat-unit">ha</span>
+          </div>
+          <div class="stat-change up">▲ 전년 대비 8.3%</div>
+        </div>
+      </div>
+
+      <!-- 피해액 -->
+      <div class="stat-card" id="stat-damage">
+        <div class="stat-ring-wrap">
+          <svg class="stat-ring-svg" viewBox="0 0 72 72">
+            <circle class="stat-ring-track" cx="36" cy="36" r="30" />
+            <circle class="stat-ring-progress ring-damage" cx="36" cy="36" r="30" style="stroke-dashoffset: 30;" />
+          </svg>
+          <div class="stat-ring-icon">💰</div>
+        </div>
+        <div class="stat-info">
+          <div class="stat-label">피해액</div>
+          <div class="stat-value">
+            <span class="stat-number">49,220</span>
+            <span class="stat-unit">백만원</span>
+          </div>
+          <div class="stat-change up">▲ 전년 대비 15.7%</div>
+        </div>
       </div>
     </div>
-  </div>
 
-  {% if member_id and approved %}
-  <div class="stats-more">
-    <a href="/dashboard/history" class="btn-more" id="stats-more-btn">더보기 →</a>
-  </div>
-  {% endif %}
-</section>
+    {% if member_id and approved %}
+    <div class="stats-more">
+      <a href="/dashboard/history" class="btn-more" id="stats-more-btn">더보기 →</a>
+    </div>
+    {% endif %}
+  </section>
 
-<script src="/static/js/main.js"></script>
+  <script src="/static/js/main.js"></script>
 </body>
+
 </html>
