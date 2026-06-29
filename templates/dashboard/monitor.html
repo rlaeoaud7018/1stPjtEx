@@ -9,7 +9,27 @@
 <body>
 {% include 'include/nav.html' %}
 
-<!-- 화재 경보 화면 테두리 -->
+<!-- 드론 피드 전체화면 오버레이 -->
+<div class="feed-fullscreen-overlay hidden" id="feed-fullscreen-overlay" onclick="closeFeedFullscreen()">
+  <span class="hud-tl" style="width:20px;height:20px;"></span>
+  <span class="hud-tr" style="width:20px;height:20px;"></span>
+  <span class="hud-bl" style="width:20px;height:20px;"></span>
+  <span class="hud-br" style="width:20px;height:20px;"></span>
+  <div class="feed-fs-header" id="feed-fs-header">
+    <span class="feed-fs-label" id="feed-fs-label">DRONE 1</span>
+    <div class="live-badge">
+      <div class="live-dot"></div> LIVE
+    </div>
+    <button class="feed-fs-close" onclick="closeFeedFullscreen()" id="feed-fs-close">✕ ESC</button>
+  </div>
+  <div class="feed-fs-body">
+    <img src="" alt="전체화면 피드" id="feed-fs-img" class="scanline-moving">
+  </div>
+  <div class="feed-fs-footer" id="feed-fs-footer">
+    <span id="feed-fs-battery"></span>
+    <span style="font-size:0.65rem; color:var(--text-dim); font-family:var(--font-en);">CLICK ANYWHERE TO CLOSE</span>
+  </div>
+</div>
 <div class="screen-danger-border" id="screen-danger-border"></div>
 
 <!-- 화재 경보 모달 -->
@@ -50,7 +70,7 @@
 <div class="monitor-wrapper" id="monitor-wrapper">
 
   <!-- 서브 헤더 -->
-  <div class="monitor-header" id="monitor-header">
+  <div class="monitor-header hud-header" id="monitor-header">
     <h1 class="monitor-title">관제 메인화면</h1>
     <div class="monitor-weather" id="monitor-weather">
       <div class="w-row">
@@ -75,18 +95,25 @@
           {'num': 3, 'id': 'DR-03', 'battery': 82},
           {'num': 4, 'id': 'DR-04', 'battery': 81}
       ] %}
-      <div class="drone-card" id="drone-card-{{ drone.num }}">
+      <div class="drone-card hud-card hud-corner-full" id="drone-card-{{ drone.num }}">
+        <!-- HUD 코너 브라켓 (네 모서리) -->
+        <span class="hud-tl"></span><span class="hud-tr"></span>
+        <span class="hud-bl"></span><span class="hud-br"></span>
         <div class="drone-card-header">
           <span class="drone-label">DRONE {{ drone.num }}</span>
           <div class="live-badge">
             <div class="live-dot"></div> LIVE
           </div>
         </div>
-        <div class="drone-feed">
+        <div class="drone-feed scanline-moving" style="cursor:pointer;"
+             onclick="openFeedFullscreen({{ drone.num }}, '{{ drone.battery }}')"
+             title="클릭하면 전체화면으로 확대됩니다">
           <img src="/dashboard/video_feed"
                alt="DRONE {{ drone.num }} 피드"
                id="drone-feed-{{ drone.num }}"
                style="width:100%; height:100%; object-fit:cover;">
+          <!-- 확대 힌트 아이콘 -->
+          <div class="feed-expand-hint">⛶</div>
         </div>
         <div class="drone-card-footer">
           <span class="drone-battery">배터리 <span>{{ drone.battery }}%</span></span>
@@ -102,13 +129,13 @@
     <div class="monitor-bottom" id="monitor-bottom">
 
       <!-- 실시간 지도 -->
-      <div class="monitor-panel" id="map-panel">
+      <div class="monitor-panel hud-panel" id="map-panel">
         <div class="panel-header">
           <span class="panel-title">📍 실시간 지도</span>
           <span style="font-size:0.7rem; color:var(--text-muted);">드론 위치 추적</span>
         </div>
         <div class="panel-body" style="padding:0;">
-          <div class="map-container" id="map-container">
+          <div class="map-container hud-map" id="map-container">
             <div class="map-grid"></div>
 
             <!-- 드론 마커들 (위치는 CSS로 조정) -->
@@ -144,7 +171,7 @@
       </div>
 
       <!-- 최근 로그 -->
-      <div class="monitor-panel" id="log-panel">
+      <div class="monitor-panel hud-panel" id="log-panel">
         <div class="panel-header">
           <span class="panel-title">📋 최근 로그</span>
           <a href="/dashboard/history" style="font-size:0.72rem; color:var(--orange-main);">
@@ -152,7 +179,7 @@
           </a>
         </div>
         <div class="panel-body" style="padding:0; overflow:auto;">
-          <table class="log-table" id="recent-log-table">
+          <table class="log-table hud-table" id="recent-log-table">
             <thead>
               <tr>
                 <th>No.</th>
@@ -179,5 +206,110 @@
 </div><!-- /monitor-wrapper -->
 
 <script src="/static/js/dashboard.js"></script>
+<script>
+// 드론 피드 전체화면 열기/닫기
+window.openFeedFullscreen = function(droneNum, battery) {
+  const overlay = document.getElementById('feed-fullscreen-overlay');
+  const img     = document.getElementById('feed-fs-img');
+  const label   = document.getElementById('feed-fs-label');
+  const bat     = document.getElementById('feed-fs-battery');
+  // 입력캐시사를 막기 위해 스끜 재설정
+  img.src = '/dashboard/video_feed?t=' + Date.now();
+  label.textContent = 'DRONE ' + droneNum;
+  bat.textContent   = '배터리 ' + battery + '%';
+  overlay.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+};
+window.closeFeedFullscreen = function() {
+  document.getElementById('feed-fullscreen-overlay').classList.add('hidden');
+  document.getElementById('feed-fs-img').src = '';
+  document.body.style.overflow = '';
+};
+// ESC 키로 닫기
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeFeedFullscreen();
+});
+
+/* ══════════════════════════════════════════════════
+   🔴 DEMO MODE — 화재 경보 자동 트리거
+   
+   [설명]
+   백엔드(서버)에서 실제 데이터를 받기 전까지
+   더미 데이터로 화재 경보 팝업을 자동으로 보여줌.
+   
+   [원리]
+   - setTimeout: "X초 뒤에 이 함수를 실행해" 라는 명령
+   - 3000ms = 3초 후 실행
+   
+   [해제 방법]
+   실제 백엔드 연결 후 아래 DEMO_MODE = false 로 변경
+══════════════════════════════════════════════════ */
+const DEMO_MODE = true;  // ← 백엔드 연결 후 false 로 변경
+
+if (DEMO_MODE) {
+
+  // ── 더미 로그 데이터 ──────────────────────────────
+  const DEMO_LOGS = [
+    { drone_id:'DR-03', type:'화재', location:'경북 울진군 북면', time:'10:04:12', status:'대응중', confidence:0.94 },
+    { drone_id:'DR-01', type:'연기', location:'강원 삼척시 도계읍', time:'09:51:38', status:'완료',   confidence:0.81 },
+    { drone_id:'DR-02', type:'화재', location:'경남 밀양시 산내면', time:'09:38:05', status:'완료',   confidence:0.97 },
+    { drone_id:'DR-04', type:'연기', location:'전남 보성군 문덕면', time:'09:22:50', status:'완료',   confidence:0.76 },
+    { drone_id:'DR-01', type:'화재', location:'경북 포항시 북구 죽장면', time:'09:08:19', status:'완료', confidence:0.88 },
+  ];
+
+  // ── 최근 로그 테이블 더미 데이터 채우기 ───────────
+  window.addEventListener('DOMContentLoaded', function() {
+    const tbody = document.getElementById('recent-log-tbody');
+    if (!tbody) return;
+
+    let html = '';
+    DEMO_LOGS.forEach(function(log, idx) {
+      const typeBadge   = log.type === '화재'
+        ? '<span class="badge badge-fire">'   + log.type + '</span>'
+        : '<span class="badge badge-smoke">'  + log.type + '</span>';
+      const statusBadge = log.status === '대응중'
+        ? '<span class="badge badge-active">' + log.status + '</span>'
+        : '<span class="badge badge-ok">'     + log.status + '</span>';
+
+      html += '<tr>'
+        + '<td>' + (idx + 1) + '</td>'
+        + '<td><span style="font-family:var(--font-en);font-weight:600;">' + log.drone_id + '</span></td>'
+        + '<td>' + typeBadge + '</td>'
+        + '<td style="color:var(--text-muted);font-size:0.74rem;">' + log.location + '</td>'
+        + '<td style="font-family:var(--font-en);font-size:0.74rem;">' + log.time + '</td>'
+        + '<td>' + statusBadge + '</td>'
+        + '</tr>';
+    });
+    tbody.innerHTML = html;
+  });
+
+  // ── 3초 후 화재 경보 팝업 자동 실행 ──────────────
+  setTimeout(function() {
+    const alertLog = DEMO_LOGS[0];  // 가장 최근 화재 로그
+
+    // 모달 내용 채우기 (dashboard.js 의 showFireModal 과 동일 방식)
+    document.getElementById('alert-drone').textContent      = alertLog.drone_id;
+    document.getElementById('alert-location').textContent   = alertLog.location;
+    document.getElementById('alert-time').textContent       = alertLog.time;
+    document.getElementById('alert-confidence').textContent = (alertLog.confidence * 100).toFixed(0) + '%';
+
+    // 모달 + 화면 테두리 경보 표시
+    document.getElementById('fire-modal-overlay').classList.remove('hidden');
+    document.getElementById('screen-danger-border').classList.add('active');
+
+    // 사이렌 재생 (브라우저 정책상 클릭 없이는 안 될 수 있음)
+    const audio = document.getElementById('siren-audio');
+    if (audio) audio.play().catch(function() {
+      console.info('[DEMO] 브라우저 정책으로 자동 사이렌 재생 불가 — 확인 버튼 클릭 후 재생됩니다.');
+    });
+
+    // DR-03 마커를 화재 상태로 변경
+    const marker03 = document.querySelector('#marker-dr03 .drone-marker-dot');
+    if (marker03) { marker03.classList.remove('ok'); marker03.classList.add('fire'); }
+
+  }, 3000);  // ← 3000ms = 3초 뒤 실행. 원하면 숫자를 바꾸세요.
+
+}
+</script>
 </body>
 </html>

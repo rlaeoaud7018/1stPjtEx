@@ -42,15 +42,15 @@
     <div class="hero-overlay"></div>
 
     <!-- 현재 시간 (우측 상단) -->
-    <div class="hero-clock" id="hero-clock">
+    <div class="hero-clock hud-clock" id="hero-clock">
       <div class="clock-label" id="clock-date">2024.05.20 (월)</div>
       <div class="clock-time" id="clock-time">14:35:22</div>
     </div>
 
     <!-- 히어로 콘텐츠 -->
     <div class="hero-content">
-      <div class="hero-badge">🔥 FIRE MONITORING SYSTEM</div>
-      <h1 class="hero-title">AI 기반 산불 감시 및<br>드론 관제 시스템</h1>
+      <div class="hero-badge neon">🔥 DRONE FIRE MONITORING SYSTEM</div>
+      <h1 class="hero-title depth">AI 기반 산불 감시 및<br>드론 관제 시스템</h1>
       <p class="hero-subtitle">실시간 감지 · AI 화재 탐지 · 신속 대응</p>
 
       {% if member_id %}
@@ -78,7 +78,7 @@
       </div>
       {% endif %}
 
-      <!-- 공지 마퀴 -->
+      <!-- 공지 마커 -->
       <div class="hero-notice">
         <span class="notice-icon">📢</span>
         <span style="color:var(--orange-main); font-size:0.78rem; font-weight:600; margin-right:6px;">
@@ -107,7 +107,7 @@
   </section>
 
   <!-- 통계 섹션 -->
-  <section class="stats-section" id="stats-section">
+  <section class="stats-section hud-stats" id="stats-section">
     <div class="stats-header">
       <div class="stats-header-title">
         📈 산불 발생 현황
@@ -119,7 +119,7 @@
 
     <div class="stats-cards">
       <!-- 발생건수 -->
-      <div class="stat-card" id="stat-fire-count">
+      <div class="stat-card hud-stat hud-corner" id="stat-fire-count">
         <div class="stat-ring-wrap">
           <svg class="stat-ring-svg" viewBox="0 0 72 72">
             <circle class="stat-ring-track" cx="36" cy="36" r="30" />
@@ -138,7 +138,7 @@
       </div>
 
       <!-- 피해면적 -->
-      <div class="stat-card" id="stat-area">
+      <div class="stat-card hud-stat hud-corner" id="stat-area">
         <div class="stat-ring-wrap">
           <svg class="stat-ring-svg" viewBox="0 0 72 72">
             <circle class="stat-ring-track" cx="36" cy="36" r="30" />
@@ -157,7 +157,7 @@
       </div>
 
       <!-- 피해액 -->
-      <div class="stat-card" id="stat-damage">
+      <div class="stat-card hud-stat hud-corner" id="stat-damage">
         <div class="stat-ring-wrap">
           <svg class="stat-ring-svg" viewBox="0 0 72 72">
             <circle class="stat-ring-track" cx="36" cy="36" r="30" />

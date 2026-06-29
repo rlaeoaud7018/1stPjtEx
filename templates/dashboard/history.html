@@ -1,105 +1,109 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>통계 분석 — 드론 소방 관제 시스템</title>
   <link rel="stylesheet" href="/static/css/style.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <!-- Chart.js 로컬 파일 (static/vendor/에 저장됨, 인터넷 불필요) -->
+  <script src="/static/vendor/chart.umd.min.js"></script>
 </head>
+
 <body>
-{% include 'include/nav.html' %}
+  {% include 'include/nav.html' %}
 
-<div class="history-wrapper" id="history-wrapper">
+  <div class="history-wrapper" id="history-wrapper">
 
-  <!-- 헤더 -->
-  <div class="history-header" id="history-header">
-    <h1 class="history-title">📊 통계 분석 / 전체 로그</h1>
-    <div style="font-size:0.78rem; color:var(--text-muted);" id="history-period">
-      전체 기간
+    <!-- 헤더 -->
+    <div class="history-header" id="history-header">
+      <h1 class="history-title">📊 통계 분석 / 전체 로그</h1>
+      <div style="font-size:0.78rem; color:var(--text-muted);" id="history-period">
+        기간 설정
+      </div>
     </div>
-  </div>
 
-  <!-- 2분할 바디 -->
-  <div class="history-body" id="history-body">
+    <!-- 2분할 바디 -->
+    <div class="history-body" id="history-body">
 
-    <!-- 좌: 통계 -->
-    <div class="history-left" id="history-left">
-      <div class="stat-summary-box" id="stat-summary-box">
-        <div class="stat-summary-title">감지 현황 요약</div>
-        <div class="stat-number-row">
-          <div class="mini-stat" id="mini-total">
-            <div class="mini-stat-val" id="stat-total">-</div>
-            <div class="mini-stat-lbl">총 건수</div>
+      <!-- 좌: 통계 -->
+      <div class="history-left" id="history-left">
+        <div class="stat-summary-box" id="stat-summary-box">
+          <div class="stat-summary-title">감지 현황 요약</div>
+          <div class="stat-number-row">
+            <div class="mini-stat" id="mini-total">
+              <div class="mini-stat-val" id="stat-total">-</div>
+              <div class="mini-stat-lbl">총 건수</div>
+            </div>
+            <div class="mini-stat" id="mini-fire">
+              <div class="mini-stat-val text-danger" id="stat-fire">-</div>
+              <div class="mini-stat-lbl">화재</div>
+            </div>
+            <div class="mini-stat" id="mini-smoke">
+              <div class="mini-stat-val text-muted" id="stat-smoke">-</div>
+              <div class="mini-stat-lbl">연기</div>
+            </div>
           </div>
-          <div class="mini-stat" id="mini-fire">
-            <div class="mini-stat-val text-danger" id="stat-fire">-</div>
-            <div class="mini-stat-lbl">화재</div>
-          </div>
-          <div class="mini-stat" id="mini-smoke">
-            <div class="mini-stat-val text-muted" id="stat-smoke">-</div>
-            <div class="mini-stat-lbl">연기</div>
-          </div>
+        </div>
+
+        <div class="chart-container" id="chart-area">
+          <div class="stat-summary-title" style="margin-bottom:14px;">유형별 감지 비율</div>
+          <canvas id="fire-trend-chart"></canvas>
         </div>
       </div>
 
-      <div class="chart-container" id="chart-area">
-        <div class="stat-summary-title" style="margin-bottom:14px;">유형별 감지 비율</div>
-        <canvas id="fire-trend-chart"></canvas>
-      </div>
-    </div>
+      <!-- 우: 전체 로그 -->
+      <div class="history-right" id="history-right">
 
-    <!-- 우: 전체 로그 -->
-    <div class="history-right" id="history-right">
+        <!-- 필터 바 -->
+        <div class="log-filter-bar" id="log-filter-bar">
+          <select class="filter-select" id="filter-drone" onchange="fetchLogs()">
+            <option value="all">구별 현황</option>
+            <option value="DR-01">동구</option>
+            <option value="DR-02">중구</option>
+            <option value="DR-03">서구</option>
+            <option value="DR-04">유성구</option>
+          </select>
+          <select class="filter-select" id="filter-type" onchange="fetchLogs()">
+            <option value="all">전체 종류</option>
+            <option value="화재">화재</option>
+            <option value="연기">연기</option>
+          </select>
+          <button class="btn btn-primary btn-sm" onclick="fetchLogs()" id="search-btn">검색</button>
+        </div>
 
-      <!-- 필터 바 -->
-      <div class="log-filter-bar" id="log-filter-bar">
-        <select class="filter-select" id="filter-drone" onchange="fetchLogs()">
-          <option value="all">전체 드론</option>
-          <option value="DR-01">DR-01</option>
-          <option value="DR-02">DR-02</option>
-          <option value="DR-03">DR-03</option>
-          <option value="DR-04">DR-04</option>
-        </select>
-        <select class="filter-select" id="filter-type" onchange="fetchLogs()">
-          <option value="all">전체 종류</option>
-          <option value="화재">화재</option>
-          <option value="연기">연기</option>
-        </select>
-        <button class="btn btn-primary btn-sm" onclick="fetchLogs()" id="search-btn">검색</button>
-      </div>
+        <!-- 로그 테이블 -->
+        <div class="log-list-area" id="log-list-area">
+          <table class="log-table" id="history-log-table">
+            <thead>
+              <tr>
+                <th>No.</th>
+                <th>드론 ID</th>
+                <th>종류</th>
+                <th>위치</th>
+                <th>발생 시간</th>
+                <th>신뢰도</th>
+                <th>상세</th>
+              </tr>
+            </thead>
+            <tbody id="history-log-tbody">
+              <tr>
+                <td colspan="7" style="text-align:center; color:var(--text-muted); padding:30px;">
+                  로딩 중...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-      <!-- 로그 테이블 -->
-      <div class="log-list-area" id="log-list-area">
-        <table class="log-table" id="history-log-table">
-          <thead>
-            <tr>
-              <th>No.</th>
-              <th>드론 ID</th>
-              <th>종류</th>
-              <th>위치</th>
-              <th>발생 시간</th>
-              <th>신뢰도</th>
-              <th>상세</th>
-            </tr>
-          </thead>
-          <tbody id="history-log-tbody">
-            <tr>
-              <td colspan="7" style="text-align:center; color:var(--text-muted); padding:30px;">
-                로딩 중...
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+        <!-- 페이지네이션 -->
+        <div class="pagination" id="pagination-bar"></div>
 
-      <!-- 페이지네이션 -->
-      <div class="pagination" id="pagination-bar"></div>
+      </div><!-- /history-right -->
+    </div><!-- /history-body -->
+  </div>
 
-    </div><!-- /history-right -->
-  </div><!-- /history-body -->
-</div>
-
-<script src="/static/js/history.js"></script>
+  <script src="/static/js/history.js"></script>
 </body>
+
 </html>

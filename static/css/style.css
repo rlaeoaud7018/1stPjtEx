@@ -1,4 +1,101 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+/* ──────────────────────────────────────────────────
+   로컬 폰트 선언 (@font-face)
+   인터넷 연결 없이도 폰트가 정상 로드됩니다.
+   파일 위치: /static/font/
+   
+   [원리] @font-face 는 "이 이름의 폰트는 이 파일을 써!"라고 브라우저에게 알려주는 규칙입니다.
+          CDN(인터넷 구글 서버)에서 가져오던 폰트를 우리 컴퓨터 파일로 대체합니다.
+────────────────────────────────────────────────── */
+
+/* Outfit (영문 숫자용) */
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('/static/font/Outfit-Light.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/static/font/Outfit-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/static/font/Outfit-Medium.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/static/font/Outfit-SemiBold.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/static/font/Outfit-Bold.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('/static/font/Outfit-ExtraBold.ttf') format('truetype');
+}
+
+/* Noto Sans KR (한글용) */
+@font-face {
+  font-family: 'Noto Sans KR';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('/static/font/NotoSansKR-Light.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Noto Sans KR';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/static/font/NotoSansKR-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Noto Sans KR';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/static/font/NotoSansKR-Medium.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Noto Sans KR';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/static/font/NotoSansKR-SemiBold.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Noto Sans KR';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/static/font/NotoSansKR-Bold.ttf') format('truetype');
+}
 
 /* ══════════════════════════════════════════════════
    DESIGN TOKENS
@@ -318,8 +415,8 @@ img {
   position: absolute;
   inset: 0;
   background: linear-gradient(100deg,
-      rgba(4, 6, 14, 0.75) 0%,
-      rgba(6, 10, 20, 0.55) 0%,
+      rgba(4, 6, 14, 0.52) 0%,
+      rgba(6, 10, 20, 0.45) 0%,
       rgba(4, 6, 12, 0.20) 100%);
   z-index: 1;
 }
@@ -337,7 +434,7 @@ img {
 
 .hero-clock {
   position: absolute;
-  top: 24px;
+  top: 75px;
   right: 28px;
   z-index: 2;
   background: rgba(10, 16, 28, 0.85);
@@ -488,10 +585,17 @@ img {
 ══════════════════════════════════════════════════ */
 .stats-section {
   position: relative;
-  z-index: 2;
-  background: rgba(8, 12, 22, 0.98);
+  z-index: 10;
+  background: linear-gradient(180deg,
+      rgba(12, 18, 32, 0.75) 0%,
+      rgba(6, 8, 15, 0.6) 40%,
+      rgba(6, 10, 18, 0.98) 100%);
+
   border-top: 1px solid rgba(255, 90, 0, 0.2);
-  padding: 40px 60px;
+  padding: 10px 60px;
+  margin-top: -200px;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 -15px 35px rgba(0, 0, 0, 0.6);
 }
 
 .stats-header {
@@ -519,6 +623,10 @@ img {
 }
 
 .stats-cards {
+  background: linear-gradient(135deg,
+      rgba(16, 24, 42, 0.95) 0%,
+      rgba(8, 12, 22, 0.98) 100%);
+
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
@@ -526,14 +634,18 @@ img {
 }
 
 .stat-card {
+  background: linear-gradient(135deg,
+      rgba(16, 24, 42, 0.95) 0%,
+      rgba(8, 12, 22, 0.98) 100%);
   background: var(--bg-card);
-  border: 1px solid var(--border-dim);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-md);
   padding: 28px 24px;
   display: flex;
   align-items: center;
   gap: 20px;
-  transition: border-color 0.3s;
+  transition: border-color 0.3s, box-shadow 0.3s;
+
 }
 
 .stat-card:hover {
@@ -2146,4 +2258,809 @@ img {
   .auth-card {
     padding: 36px 24px;
   }
+}
+
+/* ══════════════════════════════════════════════════
+   HUD + NEON + 입체 효과 (추가 스타일)
+   
+   [원리 설명]
+   - HUD: 군사/항공 계기판처럼 코너 브라켓(ㄱ자)으로 요소를 강조
+   - 네온: text-shadow와 box-shadow를 여러 겹 쌓아서 빛이 번지는 효과
+   - 입체: box-shadow + 미묘한 그라디언트로 깊이감 표현
+   
+   [적용 규칙]
+   - 기존 클래스를 건드리지 않고 새 클래스/수정자로만 추가
+   - 색상은 기존 :root 변수(--orange-main, --red-vivid 등) 그대로 사용
+══════════════════════════════════════════════════ */
+
+/* ── HUD 설계 토큰 ─────────────────────────────── */
+:root {
+  --neon-orange: rgba(255, 100, 0, 0.9);
+  --neon-red: rgba(255, 40, 40, 0.9);
+  --neon-cyan: rgba(0, 200, 255, 0.7);
+  --neon-green: rgba(0, 220, 130, 0.8);
+  --hud-bracket-sz: 12px;
+  /* 코너 브라켓 크기 */
+  --hud-bracket-w: 2px;
+  /* 코너 브라켓 두께 */
+  --scanline-speed: 6s;
+}
+
+/* ── HUD 코너 브라켓 ────────────────────────────────
+   .hud-corner 클래스를 요소에 추가하면
+   네 모서리에 ㄱ자 브라켓이 생김.
+   position: relative 필요 (부모 요소에)
+──────────────────────────────────────────────── */
+.hud-corner {
+  position: relative;
+}
+
+.hud-corner::before,
+.hud-corner::after {
+  content: '';
+  position: absolute;
+  width: var(--hud-bracket-sz);
+  height: var(--hud-bracket-sz);
+  pointer-events: none;
+  z-index: 10;
+  transition: width 0.3s, height 0.3s;
+}
+
+/* 왼쪽 위 ┌ */
+.hud-corner::before {
+  top: 0;
+  left: 0;
+  border-top: var(--hud-bracket-w) solid var(--orange-main);
+  border-left: var(--hud-bracket-w) solid var(--orange-main);
+  filter: drop-shadow(0 0 4px var(--neon-orange));
+}
+
+/* 오른쪽 아래 ┘ */
+.hud-corner::after {
+  bottom: 0;
+  right: 0;
+  border-bottom: var(--hud-bracket-w) solid var(--orange-main);
+  border-right: var(--hud-bracket-w) solid var(--orange-main);
+  filter: drop-shadow(0 0 4px var(--neon-orange));
+}
+
+/* 호버시 브라켓이 커지면서 강조 */
+.hud-corner:hover::before,
+.hud-corner:hover::after {
+  width: calc(var(--hud-bracket-sz) * 1.8);
+  height: calc(var(--hud-bracket-sz) * 1.8);
+}
+
+/* ── HUD 코너 브라켓 — 4개 버전 ─────────────────────
+   .hud-corner-full 은 네 모서리 모두 브라켓
+──────────────────────────────────────────────── */
+.hud-corner-full {
+  position: relative;
+}
+
+/* 왼쪽 위 + 오른쪽 위 (span.hud-tl, span.hud-tr 사용) */
+.hud-tl,
+.hud-tr,
+.hud-bl,
+.hud-br {
+  position: absolute;
+  width: var(--hud-bracket-sz);
+  height: var(--hud-bracket-sz);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.hud-tl {
+  top: 0;
+  left: 0;
+  border-top: var(--hud-bracket-w) solid var(--orange-main);
+  border-left: var(--hud-bracket-w) solid var(--orange-main);
+  filter: drop-shadow(0 0 5px var(--neon-orange));
+}
+
+.hud-tr {
+  top: 0;
+  right: 0;
+  border-top: var(--hud-bracket-w) solid var(--orange-main);
+  border-right: var(--hud-bracket-w) solid var(--orange-main);
+  filter: drop-shadow(0 0 5px var(--neon-orange));
+}
+
+.hud-bl {
+  bottom: 0;
+  left: 0;
+  border-bottom: var(--hud-bracket-w) solid var(--orange-main);
+  border-left: var(--hud-bracket-w) solid var(--orange-main);
+  filter: drop-shadow(0 0 5px var(--neon-orange));
+}
+
+.hud-br {
+  bottom: 0;
+  right: 0;
+  border-bottom: var(--hud-bracket-w) solid var(--orange-main);
+  border-right: var(--hud-bracket-w) solid var(--orange-main);
+  filter: drop-shadow(0 0 5px var(--neon-orange));
+}
+
+/* ── 네온 글로우 텍스트 ──────────────────────────────
+   [원리] text-shadow를 여러 겹 쌓으면 빛이 번지는 네온 효과
+   - 첫 번째 레이어: 핵심 색상 (가까이서 밝게)
+   - 두 번째 레이어: 중간 번짐
+   - 세 번째 레이어: 넓게 퍼지는 후광
+──────────────────────────────────────────────── */
+.neon-text-orange {
+  color: #ff8040;
+  text-shadow:
+    0 0 4px rgba(255, 100, 20, 0.95),
+    0 0 12px rgba(255, 80, 0, 0.7),
+    0 0 28px rgba(255, 60, 0, 0.4);
+}
+
+.neon-text-red {
+  color: #ff4444;
+  text-shadow:
+    0 0 4px rgba(255, 50, 50, 0.95),
+    0 0 12px rgba(220, 20, 20, 0.8),
+    0 0 30px rgba(180, 0, 0, 0.4);
+}
+
+.neon-text-cyan {
+  color: #40d8ff;
+  text-shadow:
+    0 0 4px rgba(0, 210, 255, 0.95),
+    0 0 12px rgba(0, 180, 240, 0.7),
+    0 0 28px rgba(0, 150, 220, 0.4);
+}
+
+.neon-text-green {
+  color: #30eda0;
+  text-shadow:
+    0 0 4px rgba(0, 230, 140, 0.95),
+    0 0 12px rgba(0, 200, 120, 0.7),
+    0 0 28px rgba(0, 160, 90, 0.4);
+}
+
+/* ── 네온 테두리 박스 ──────────────────────────────── */
+.neon-border-orange {
+  border-color: var(--orange-main) !important;
+  box-shadow:
+    0 0 6px rgba(255, 90, 0, 0.5),
+    0 0 14px rgba(255, 90, 0, 0.2),
+    inset 0 0 6px rgba(255, 90, 0, 0.05);
+}
+
+.neon-border-red {
+  border-color: var(--red-vivid) !important;
+  box-shadow:
+    0 0 6px rgba(220, 20, 20, 0.5),
+    0 0 14px rgba(220, 20, 20, 0.2),
+    inset 0 0 6px rgba(220, 20, 20, 0.05);
+}
+
+/* ── 스캔라인 오버레이 ─────────────────────────────────
+   [원리] 투명한 가로 줄무늬를 화면 위에 얹어서
+          CRT 모니터나 군사 스크린 느낌을 줌
+──────────────────────────────────────────────── */
+.scanline {
+  position: relative;
+  overflow: hidden;
+}
+
+.scanline::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.08) 2px,
+      rgba(0, 0, 0, 0.08) 4px);
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* ── 흐르는 스캔 라인 (드론 피드용) ──────────────────── */
+.scanline-moving {
+  position: relative;
+  overflow: hidden;
+}
+
+.scanline-moving::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: linear-gradient(transparent 0%,
+      rgba(255, 90, 0, 0.06) 40%,
+      rgba(255, 90, 0, 0.10) 50%,
+      rgba(255, 90, 0, 0.06) 60%,
+      transparent 100%);
+  animation: scanMove var(--scanline-speed) linear infinite;
+  pointer-events: none;
+  z-index: 6;
+}
+
+.scanline-moving::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(0deg,
+      transparent,
+      transparent 3px,
+      rgba(0, 0, 0, 0.06) 3px,
+      rgba(0, 0, 0, 0.06) 4px);
+  pointer-events: none;
+  z-index: 5;
+}
+
+@keyframes scanMove {
+  0% {
+    top: -60px;
+  }
+
+  100% {
+    top: 100%;
+  }
+}
+
+/* ── HUD 모니터 헤더 (강화) ─────────────────────────── */
+.monitor-header.hud-header {
+  background: linear-gradient(90deg,
+      rgba(4, 8, 18, 0.98) 0%,
+      rgba(10, 16, 30, 0.97) 50%,
+      rgba(4, 8, 18, 0.98) 100%);
+  border-bottom: 1px solid rgba(255, 90, 0, 0.3) !important;
+  box-shadow:
+    0 1px 0 rgba(255, 90, 0, 0.15),
+    0 2px 12px rgba(0, 0, 0, 0.6);
+}
+
+/* 헤더 타이틀 네온 */
+.monitor-header.hud-header .monitor-title {
+  font-family: var(--font-en);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #ccdae8;
+  text-shadow:
+    0 0 8px rgba(100, 160, 220, 0.5),
+    0 0 20px rgba(60, 120, 200, 0.2);
+}
+
+/* ── 드론 카드 HUD 강화 ─────────────────────────────── */
+.drone-card.hud-card {
+  border: 1px solid rgba(255, 90, 0, 0.2);
+  background: linear-gradient(160deg,
+      rgba(12, 18, 34, 1) 0%,
+      rgba(8, 14, 26, 1) 100%);
+  box-shadow:
+    0 2px 12px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.drone-card.hud-card:hover {
+  border-color: var(--orange-main);
+  box-shadow:
+    0 0 0 1px rgba(255, 90, 0, 0.3),
+    0 0 16px rgba(255, 90, 0, 0.18),
+    0 4px 20px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* 드론 카드 헤더 바 */
+.drone-card.hud-card .drone-card-header {
+  background: linear-gradient(90deg,
+      rgba(255, 90, 0, 0.08) 0%,
+      rgba(0, 0, 0, 0) 100%);
+  border-bottom: 1px solid rgba(255, 90, 0, 0.2);
+}
+
+/* DRONE 레이블 네온 */
+.drone-card.hud-card .drone-label {
+  color: #e8c090;
+  text-shadow: 0 0 8px rgba(255, 140, 40, 0.6);
+  letter-spacing: 0.12em;
+}
+
+/* LIVE 뱃지 네온 */
+.drone-card.hud-card .live-badge {
+  color: #ff4040;
+  text-shadow: 0 0 6px rgba(255, 40, 40, 0.8);
+}
+
+.drone-card.hud-card .live-dot {
+  box-shadow: 0 0 6px rgba(255, 32, 32, 0.9);
+}
+
+/* 드론 피드 영역 */
+.drone-card.hud-card .drone-feed {
+  position: relative;
+}
+
+/* 푸터 */
+.drone-card.hud-card .drone-card-footer {
+  background: linear-gradient(90deg,
+      rgba(0, 0, 0, 0.6) 0%,
+      rgba(0, 0, 0, 0.4) 100%);
+  border-top: 1px solid rgba(255, 90, 0, 0.1);
+}
+
+.drone-card.hud-card .drone-battery span {
+  text-shadow: 0 0 6px rgba(0, 220, 130, 0.6);
+}
+
+.drone-card.hud-card .drone-status {
+  text-shadow: 0 0 6px rgba(0, 220, 130, 0.5);
+}
+
+.drone-card.hud-card .status-dot {
+  box-shadow: 0 0 6px rgba(0, 216, 120, 0.7);
+}
+
+/* ── 패널 HUD 강화 ──────────────────────────────────── */
+.monitor-panel.hud-panel {
+  border: 1px solid rgba(255, 90, 0, 0.15);
+  background: linear-gradient(180deg,
+      rgba(10, 16, 30, 0.98) 0%,
+      rgba(6, 10, 20, 0.98) 100%);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.monitor-panel.hud-panel .panel-header {
+  background: linear-gradient(90deg,
+      rgba(255, 90, 0, 0.07) 0%,
+      transparent 100%);
+  border-bottom: 1px solid rgba(255, 90, 0, 0.2);
+}
+
+.monitor-panel.hud-panel .panel-title {
+  color: var(--orange-main);
+  text-shadow: 0 0 8px rgba(255, 90, 0, 0.5);
+  letter-spacing: 0.06em;
+}
+
+/* ── 지도 HUD 강화 ──────────────────────────────────── */
+.map-container.hud-map {
+  background: linear-gradient(135deg,
+      #04080e 0%,
+      #060c18 50%,
+      #040810 100%);
+  box-shadow: inset 0 0 40px rgba(0, 30, 60, 0.4);
+}
+
+.map-container.hud-map .map-grid {
+  background-image:
+    linear-gradient(rgba(0, 150, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 150, 255, 0.08) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* 지도 중심 십자선 */
+.map-container.hud-map::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+      transparent 0%, rgba(0, 150, 255, 0.08) 30%,
+      rgba(0, 150, 255, 0.15) 50%,
+      rgba(0, 150, 255, 0.08) 70%, transparent 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.map-container.hud-map::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(180deg,
+      transparent 0%, rgba(0, 150, 255, 0.08) 30%,
+      rgba(0, 150, 255, 0.15) 50%,
+      rgba(0, 150, 255, 0.08) 70%, transparent 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* 드론 마커 강화 */
+.drone-marker-dot {
+  box-shadow: 0 0 0 3px rgba(255, 90, 0, 0.15), 0 0 10px var(--orange-glow);
+  animation: markerPulse 2s ease infinite;
+}
+
+.drone-marker-dot.ok {
+  box-shadow: 0 0 0 3px rgba(0, 216, 120, 0.15), 0 0 10px rgba(0, 216, 120, 0.4);
+}
+
+.drone-marker-dot.fire {
+  box-shadow: 0 0 0 3px rgba(255, 48, 48, 0.2), 0 0 14px rgba(255, 48, 48, 0.7);
+  animation: markerFirePulse 0.8s ease infinite;
+}
+
+@keyframes markerFirePulse {
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 3px rgba(255, 48, 48, 0.2), 0 0 14px rgba(255, 48, 48, 0.7);
+  }
+
+  50% {
+    box-shadow: 0 0 0 6px rgba(255, 48, 48, 0.1), 0 0 24px rgba(255, 60, 60, 1.0);
+  }
+}
+
+/* ── 로그 테이블 HUD 강화 ────────────────────────────── */
+.log-table.hud-table th {
+  background: rgba(255, 90, 0, 0.05);
+  border-bottom: 1px solid rgba(255, 90, 0, 0.2) !important;
+  color: rgba(255, 140, 60, 0.8);
+  text-shadow: 0 0 8px rgba(255, 90, 0, 0.3);
+}
+
+.log-table.hud-table tr:hover td {
+  background: rgba(255, 90, 0, 0.04);
+}
+
+/* ── 홈 히어로 HUD 강화 ─────────────────────────────── */
+
+/* 히어로 배지 네온 강화 */
+.hero-badge.neon {
+  color: var(--orange-main);
+  text-shadow:
+    0 0 6px rgba(255, 90, 0, 0.8),
+    0 0 18px rgba(255, 70, 0, 0.4);
+  letter-spacing: 0.18em;
+}
+
+/* 히어로 타이틀 입체감 */
+.hero-title.depth {
+  text-shadow:
+    1px 1px 0 rgba(0, 0, 0, 0.8),
+    2px 2px 0 rgba(0, 0, 0, 0.5),
+    3px 3px 6px rgba(0, 0, 0, 0.4),
+    0 0 30px rgba(255, 255, 255, 0.05);
+}
+
+/* 시계 HUD 강화 */
+.hero-clock.hud-clock {
+  background: rgba(6, 10, 20, 0.92);
+  border: 1px solid rgba(255, 90, 0, 0.3);
+  box-shadow:
+    0 0 0 1px rgba(255, 90, 0, 0.1),
+    0 4px 20px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.hero-clock.hud-clock .clock-time {
+  font-family: var(--font-en);
+  color: #e0d090;
+  text-shadow:
+    0 0 8px rgba(255, 200, 60, 0.7),
+    0 0 20px rgba(255, 160, 20, 0.4);
+  letter-spacing: 0.04em;
+}
+
+.hero-clock.hud-clock .clock-label {
+  color: rgba(255, 140, 40, 0.7);
+  text-shadow: 0 0 6px rgba(255, 100, 0, 0.4);
+}
+
+/* 통계 카드 HUD 강화 */
+.stat-card.hud-stat {
+  background: linear-gradient(135deg,
+      rgba(12, 18, 32, 0.97) 0%,
+      rgba(8, 14, 24, 0.97) 100%);
+  border: 1px solid rgba(255, 90, 0, 0.15);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+}
+
+.stat-card.hud-stat:hover {
+  border-color: rgba(255, 90, 0, 0.4);
+  box-shadow:
+    0 0 0 1px rgba(255, 90, 0, 0.2),
+    0 6px 24px rgba(255, 90, 0, 0.08),
+    0 4px 20px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.stat-card.hud-stat .stat-number {
+  text-shadow: 0 0 12px rgba(200, 220, 240, 0.3);
+}
+
+/* 통계 섹션 HUD */
+.stats-section.hud-stats {
+  background: linear-gradient(180deg,
+      rgba(6, 10, 18, 0.99) 0%,
+      rgba(4, 8, 14, 0.99) 100%);
+  border-top: 1px solid rgba(255, 90, 0, 0.2);
+  position: relative;
+}
+
+/* 네비 바 HUD 강화 */
+#main-nav.hud-nav {
+  background: rgba(4, 7, 14, 0.98);
+  border-bottom: 1px solid rgba(255, 90, 0, 0.2) !important;
+  box-shadow:
+    0 1px 0 rgba(255, 90, 0, 0.12),
+    0 4px 20px rgba(0, 0, 0, 0.7);
+}
+
+.logo-title.neon-logo {
+  text-shadow:
+    0 0 6px rgba(255, 90, 0, 0.5),
+    0 0 16px rgba(255, 60, 0, 0.2);
+}
+
+.logo-title.neon-logo .text-fire {
+  color: var(--orange-main);
+  text-shadow:
+    0 0 8px rgba(255, 90, 0, 0.8),
+    0 0 20px rgba(255, 60, 0, 0.5),
+    0 0 40px rgba(255, 40, 0, 0.2);
+}
+
+/* ── 인증 폼 HUD 강화 ───────────────────────────────── */
+.auth-card.hud-auth {
+  background: linear-gradient(160deg,
+      rgba(10, 16, 28, 0.99) 0%,
+      rgba(6, 10, 20, 0.99) 100%);
+  border: 1px solid rgba(255, 90, 0, 0.2);
+  box-shadow:
+    0 0 0 1px rgba(255, 90, 0, 0.05),
+    0 8px 40px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.auth-card.hud-auth .auth-title {
+  text-shadow:
+    1px 1px 0 rgba(0, 0, 0, 0.8),
+    0 0 20px rgba(200, 220, 240, 0.15);
+}
+
+.auth-card.hud-auth .form-input:focus {
+  border-color: var(--orange-main);
+  box-shadow:
+    0 0 0 3px rgba(255, 90, 0, 0.08),
+    0 0 12px rgba(255, 90, 0, 0.15);
+}
+
+/* ── HUD 뱃지 강화 ──────────────────────────────────── */
+.badge-fire {
+  text-shadow: 0 0 6px rgba(255, 60, 60, 0.5);
+  box-shadow: 0 0 6px rgba(220, 20, 20, 0.15);
+}
+
+.badge-smoke {
+  text-shadow: 0 0 6px rgba(140, 170, 200, 0.4);
+}
+
+.badge-ok {
+  text-shadow: 0 0 6px rgba(0, 200, 120, 0.4);
+  box-shadow: 0 0 6px rgba(0, 200, 120, 0.1);
+}
+
+.badge-active {
+  text-shadow: 0 0 6px rgba(255, 90, 0, 0.6);
+  box-shadow: 0 0 8px rgba(255, 90, 0, 0.15);
+}
+
+/* ── 화재 경보 모달 네온 강화 ───────────────────────── */
+.fire-modal {
+  box-shadow:
+    0 0 40px rgba(220, 20, 20, 0.6),
+    0 0 80px rgba(180, 0, 0, 0.3),
+    0 20px 60px rgba(0, 0, 0, 0.8) !important;
+}
+
+.fire-modal-alert {
+  text-shadow:
+    0 0 8px rgba(255, 100, 100, 0.6),
+    1px 1px 0 rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 12px rgba(220, 20, 20, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* ── 추가 애니메이션 ────────────────────────────────── */
+@keyframes neonFlicker {
+
+  0%,
+  19%,
+  21%,
+  23%,
+  25%,
+  54%,
+  56%,
+  100% {
+    opacity: 1;
+  }
+
+  20%,
+  24%,
+  55% {
+    opacity: 0.85;
+  }
+}
+
+@keyframes hudBoot {
+  0% {
+    opacity: 0;
+    transform: scaleY(0.02);
+  }
+
+  10% {
+    opacity: 1;
+    transform: scaleY(0.02);
+  }
+
+  30% {
+    transform: scaleY(1);
+  }
+
+  100% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+@keyframes glowPulse {
+
+  0%,
+  100% {
+    filter: drop-shadow(0 0 3px var(--neon-orange));
+  }
+
+  50% {
+    filter: drop-shadow(0 0 8px var(--neon-orange));
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   드론 피드 전체화면 오버레이
+   클릭 → openFeedFullscreen() → 이 오버레이가 나타남
+══════════════════════════════════════════════════ */
+.feed-fullscreen-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9800;
+  background: rgba(2, 4, 10, 0.97);
+  display: flex;
+  flex-direction: column;
+  animation: fadeIn 0.2s ease;
+}
+
+.feed-fullscreen-overlay.hidden {
+  display: none;
+}
+
+/* 전체화면 헤더 */
+.feed-fs-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 24px;
+  background: rgba(8, 14, 26, 0.98);
+  border-bottom: 1px solid rgba(255, 90, 0, 0.3);
+  flex-shrink: 0;
+  box-shadow: 0 1px 0 rgba(255, 90, 0, 0.15);
+}
+
+.feed-fs-label {
+  font-family: var(--font-en);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #e8c090;
+  text-shadow: 0 0 10px rgba(255, 140, 40, 0.7);
+}
+
+.feed-fs-close {
+  margin-left: auto;
+  font-family: var(--font-en);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-sm);
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.06em;
+}
+
+.feed-fs-close:hover {
+  color: var(--text-primary);
+  border-color: var(--orange-main);
+  box-shadow: 0 0 8px rgba(255, 90, 0, 0.3);
+}
+
+/* 전체화면 이미지 본체 */
+.feed-fs-body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.feed-fs-body img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* 전체화면 푸터 */
+.feed-fs-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 24px;
+  background: rgba(8, 14, 26, 0.98);
+  border-top: 1px solid rgba(255, 90, 0, 0.15);
+  font-family: var(--font-en);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* ── 드론 피드 확대 힌트 아이콘 ─────────────────────────
+   피드 위에 마우스 올리면 나타나는 ⛶ 아이콘
+──────────────────────────────────────────────── */
+.feed-expand-hint {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.5);
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 4px;
+  padding: 2px 6px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+  z-index: 7;
+  line-height: 1.4;
+}
+
+.drone-feed:hover .feed-expand-hint {
+  opacity: 1;
+}
+
+/* ══════════════════════════════════════════════════
+   홈 페이지 히어로 버튼 크기 증가
+══════════════════════════════════════════════════ */
+.hero-actions .btn {
+  padding: 14px 32px;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  min-width: 140px;
+}
+
+.hero-actions .btn-primary {
+  box-shadow:
+    0 0 18px rgba(255, 90, 0, 0.45),
+    0 4px 14px rgba(0, 0, 0, 0.4);
+}
+
+.hero-actions .btn-primary:hover {
+  box-shadow:
+    0 0 28px rgba(255, 90, 0, 0.65),
+    0 6px 18px rgba(0, 0, 0, 0.4);
+  transform: translateY(-2px);
+}
+
+.hero-actions .btn-secondary:hover {
+  border-color: var(--orange-main);
+  box-shadow: 0 0 12px rgba(255, 90, 0, 0.2);
+  transform: translateY(-2px);
 }

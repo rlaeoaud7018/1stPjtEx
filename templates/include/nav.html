@@ -1,42 +1,40 @@
-<nav id="main-nav">
+<nav id="main-nav" class="hud-nav">
   <div class="nav-inner">
     <a href="/" class="nav-logo" id="nav-logo">
       <span class="logo-icon">🔥</span>
       <div class="logo-text">
-        <span class="logo-title">DRONE <span class="text-fire">FIRE</span> CONTROL SYSTEM</span>
+        <span class="logo-title neon-logo">DRONE <span class="text-fire">FIRE</span> MONITORING SYSTEM</span>
         <span class="logo-sub">AI 기반 산불 감시 및 드론 관제 시스템</span>
       </div>
     </a>
 
     <ul class="nav-menu" id="nav-menu">
       <li>
-        <a href="/" id="nav-home"
-           class="nav-link {{ 'active' if request.path == '/' else '' }}">
+        <a href="/" id="nav-home" class="nav-link {{ 'active' if request.path == '/' else '' }}">
           관제 시스템
         </a>
       </li>
       <li>
         <a href="/dashboard/monitor" id="nav-monitor"
-           class="nav-link {{ 'active' if '/dashboard/monitor' in request.path else '' }}">
+          class="nav-link {{ 'active' if '/dashboard/monitor' in request.path else '' }}">
           실시간 모니터링
         </a>
       </li>
       <li>
         <a href="/dashboard/history" id="nav-history"
-           class="nav-link {{ 'active' if '/dashboard/history' in request.path else '' }}">
+          class="nav-link {{ 'active' if '/dashboard/history' in request.path else '' }}">
           통계 분석
         </a>
       </li>
       <li>
-        <a href="/notice/" id="nav-notice"
-           class="nav-link {{ 'active' if '/notice' in request.path else '' }}">
+        <a href="/notice/" id="nav-notice" class="nav-link {{ 'active' if '/notice' in request.path else '' }}">
           공지사항
         </a>
       </li>
     </ul>
 
     <button class="nav-hamburger" id="nav-hamburger"
-            onclick="document.getElementById('nav-menu').classList.toggle('open')">
+      onclick="document.getElementById('nav-menu').classList.toggle('open')">
       ☰
     </button>
   </div>
