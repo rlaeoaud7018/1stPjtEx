@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>발송 이력 — 드론 소방 관제 시스템</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+  {% include 'include/nav.html' %}
+
+  <div class="history-wrapper" id="send-history-wrapper">
+
+    <div class="history-header" id="send-history-header">
+      <h1 class="history-title">📨 발송 이력 <span style="font-size:0.75rem; color:var(--text-muted); font-weight:400;">—
+          관리자 전용</span></h1>
+      <div style="font-size:0.78rem; color:var(--text-muted);">SMS / Discord 발송 내역</div>
+    </div>
+
+    <div style="padding: 24px 32px; max-width:1100px; margin:0 auto;">
+
+      {% if logs %}
+      <table class="log-table" id="send-history-table" style="width:100%; margin-top:8px;">
+        <thead>
+          <tr>
+            <th>No.</th>
+            <th>발송 유형</th>
+            <th>대상 로그 ID</th>
+            <th>수신자</th>
+            <th>내용</th>
+            <th>발송 시각</th>
+            <th>결과</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for log in logs %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            <td>
+              {% if log.get('channel') == 'SMS' %}
+              <span class="badge badge-fire">SMS</span>
+              {% elif log.get('channel') == 'Discord' %}
+              <span class="badge badge-smoke" style="color:#7289da; border-color:#7289da;">Discord</span>
+              {% else %}
+              <span class="badge">{{ log.get('channel', '-') }}</span>
+              {% endif %}
+            </td>
+            <td style="font-family:var(--font-en); font-weight:600;">#{{ log.get('log_id', '-') }}</td>
+            <td style="color:var(--text-muted); font-size:0.76rem;">{{ log.get('recipient', '-') }}</td>
+            <td style="color:var(--text-muted); font-size:0.74rem; max-width:300px; word-break:break-all;">{{
+              log.get('message', '-') }}</td>
+            <td style="font-family:var(--font-en); font-size:0.76rem;">{{ log.get('sent_at', '-') }}</td>
+            <td>
+              {% if log.get('success') %}
+              <span class="badge badge-ok">성공</span>
+              {% else %}
+              <span class="badge badge-active">실패</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      {% else %}
+      <div style="text-align:center; padding:80px 0; color:var(--text-muted);">
+        <div style="font-size:2.5rem; margin-bottom:16px;">📭</div>
+        <div style="font-size:1rem; font-weight:600; margin-bottom:8px;">발송 이력이 없습니다</div>
+        <div style="font-size:0.82rem;">SMS 또는 Discord 발송 후 이 화면에 기록이 나타납니다.</div>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+</body>
+
+</html>

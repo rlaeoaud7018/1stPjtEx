@@ -10,11 +10,6 @@
 
     <ul class="nav-menu" id="nav-menu">
       <li>
-        <a href="/" id="nav-home" class="nav-link {{ 'active' if request.path == '/' else '' }}">
-          관제 시스템
-        </a>
-      </li>
-      <li>
         <a href="/dashboard/monitor" id="nav-monitor"
           class="nav-link {{ 'active' if '/dashboard/monitor' in request.path else '' }}">
           실시간 모니터링
@@ -26,6 +21,14 @@
           통계 분석
         </a>
       </li>
+      {% if session.get('signinedMemberRole') == 'admin' %}
+      <li>
+        <a href="/admin/management" id="nav-send-history"
+          class="nav-link {{ 'active' if '/admin/management' in request.path else '' }}">
+          관리자 메뉴
+        </a>
+      </li>
+      {% endif %}
       <li>
         <a href="/notice/" id="nav-notice" class="nav-link {{ 'active' if '/notice' in request.path else '' }}">
           공지사항

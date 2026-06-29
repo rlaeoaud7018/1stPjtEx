@@ -1140,12 +1140,13 @@ img {
 .monitor-header {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   padding: 10px 24px;
   background: rgba(8, 12, 22, 0.95);
   border-bottom: 1px solid var(--border-dim);
   position: relative;
   flex-shrink: 0;
+  gap: 12px;
 }
 
 .monitor-title {
@@ -1154,14 +1155,48 @@ img {
   font-weight: 700;
   color: var(--text-primary);
   letter-spacing: 0.05em;
+  /* 중앙 고정 — 좌우 날씨/시간과 균형 */
+  flex: 1;
+  text-align: center;
 }
 
+/* 좌: 날씨 정보 */
 .monitor-weather {
-  position: absolute;
-  right: 24px;
-  top: 50%;
-  transform: translateY(-50%);
-  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  align-items: flex-start;
+  min-width: 0;
+  flex-shrink: 0;
+}
+
+/* 우: 날짜/시간 */
+.monitor-datetime {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+.monitor-datetime .w-row {
+  display: flex;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  justify-content: flex-end;
+}
+
+.monitor-datetime .w-label {
+  color: var(--orange-main);
+  font-weight: 600;
+  font-family: var(--font-en);
+}
+
+.monitor-datetime .w-val {
+  color: var(--text-primary);
+  font-family: var(--font-en);
+  font-size: 0.82rem;
 }
 
 .monitor-weather .w-row {
@@ -1506,7 +1541,7 @@ img {
 
 .history-body {
   display: grid;
-  grid-template-columns: 360px 1fr;
+  grid-template-columns: 680px 1fr;
   gap: 0;
   height: calc(100vh - var(--nav-height) - 62px);
 }
@@ -1515,7 +1550,7 @@ img {
   border-right: 1px solid var(--border-dim);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow-y: auto;
   background: var(--bg-panel);
 }
 
@@ -1572,9 +1607,7 @@ img {
 }
 
 .chart-container {
-  padding: 20px;
-  flex: 1;
-  min-height: 0;
+  padding: 16px 20px;
   position: relative;
 }
 
@@ -1591,7 +1624,7 @@ img {
 }
 
 .filter-select {
-  background: rgba(255, 255, 255, 0.04);
+  background: #0c1220;
   border: 1px solid var(--border-mid);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
@@ -1600,6 +1633,18 @@ img {
   cursor: pointer;
   outline: none;
   font-family: var(--font-kr);
+  /* 드롭다운 옵션도 다크 테마 적용 */
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%235a7090'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+}
+
+.filter-select option {
+  background: #0c1220;
+  color: var(--text-primary);
 }
 
 .filter-select:focus {
@@ -2476,7 +2521,8 @@ img {
       rgba(255, 90, 0, 0.10) 50%,
       rgba(255, 90, 0, 0.06) 60%,
       transparent 100%);
-  animation: scanMove var(--scanline-speed) linear infinite;
+  /* 흐르는 스캔라인 노이즈 비활성화 */
+  display: none;
   pointer-events: none;
   z-index: 6;
 }
@@ -3063,4 +3109,50 @@ img {
   border-color: var(--orange-main);
   box-shadow: 0 0 12px rgba(255, 90, 0, 0.2);
   transform: translateY(-2px);
+}
+
+/* ══════════════════════════════════════════════════
+   모니터 헤더 날씨 정보 (두 줄 레이아웃)
+══════════════════════════════════════════════════ */
+.monitor-weather {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  align-items: flex-end;
+}
+
+.weather-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.weather-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-en);
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+
+.weather-item .wi-label {
+  color: rgba(255, 140, 60, 0.75);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-family: var(--font-kr);
+}
+
+.weather-item .wi-val {
+  color: #d8e8f0;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-shadow: 0 0 8px rgba(100, 180, 240, 0.4);
+}
+
+.weather-item .wi-icon {
+  font-size: 0.85rem;
+  line-height: 1;
 }

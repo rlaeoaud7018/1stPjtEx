@@ -42,6 +42,17 @@ def history():
     return render_template("dashboard/history.html")
 
 
+@dashboard_bp.route("/send_history")
+def send_history():
+    """발송 이력 — 관리자 전용 (app.py check_auth에서 /admin/ 경로와 별도로 여기서 role 체크)"""
+    from flask import session as flask_session
+    if flask_session.get("signinedMemberRole") != "admin":
+        return redirect(url_for("auth.signin_form"))
+    from utils.json_manager import load_sms_logs
+    logs = load_sms_logs()
+    return render_template("dashboard/send_history.html", logs=logs)
+
+
 @dashboard_bp.route("/log_detail/<int:log_id>")
 def log_detail(log_id):
     logs   = load_fire_logs()

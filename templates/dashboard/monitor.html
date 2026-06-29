@@ -1,315 +1,411 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>실시간 모니터링 — 드론 소방 관제 시스템</title>
   <link rel="stylesheet" href="/static/css/style.css">
 </head>
+
 <body>
-{% include 'include/nav.html' %}
+  {% include 'include/nav.html' %}
 
-<!-- 드론 피드 전체화면 오버레이 -->
-<div class="feed-fullscreen-overlay hidden" id="feed-fullscreen-overlay" onclick="closeFeedFullscreen()">
-  <span class="hud-tl" style="width:20px;height:20px;"></span>
-  <span class="hud-tr" style="width:20px;height:20px;"></span>
-  <span class="hud-bl" style="width:20px;height:20px;"></span>
-  <span class="hud-br" style="width:20px;height:20px;"></span>
-  <div class="feed-fs-header" id="feed-fs-header">
-    <span class="feed-fs-label" id="feed-fs-label">DRONE 1</span>
-    <div class="live-badge">
-      <div class="live-dot"></div> LIVE
+  <!-- 드론 피드 전체화면 오버레이 -->
+  <div class="feed-fullscreen-overlay hidden" id="feed-fullscreen-overlay" onclick="closeFeedFullscreen()">
+    <span class="hud-tl" style="width:20px;height:20px;"></span>
+    <span class="hud-tr" style="width:20px;height:20px;"></span>
+    <span class="hud-bl" style="width:20px;height:20px;"></span>
+    <span class="hud-br" style="width:20px;height:20px;"></span>
+    <div class="feed-fs-header" id="feed-fs-header">
+      <span class="feed-fs-label" id="feed-fs-label">DRONE 1</span>
+      <div class="live-badge">
+        <div class="live-dot"></div> LIVE
+      </div>
+      <button class="feed-fs-close" onclick="closeFeedFullscreen()" id="feed-fs-close">✕ ESC</button>
     </div>
-    <button class="feed-fs-close" onclick="closeFeedFullscreen()" id="feed-fs-close">✕ ESC</button>
-  </div>
-  <div class="feed-fs-body">
-    <img src="" alt="전체화면 피드" id="feed-fs-img" class="scanline-moving">
-  </div>
-  <div class="feed-fs-footer" id="feed-fs-footer">
-    <span id="feed-fs-battery"></span>
-    <span style="font-size:0.65rem; color:var(--text-dim); font-family:var(--font-en);">CLICK ANYWHERE TO CLOSE</span>
-  </div>
-</div>
-<div class="screen-danger-border" id="screen-danger-border"></div>
-
-<!-- 화재 경보 모달 -->
-<div class="fire-modal-overlay hidden" id="fire-modal-overlay">
-  <div class="fire-modal" id="fire-modal">
-    <div class="fire-modal-header">WARNING</div>
-    <div class="fire-modal-siren">🚨</div>
-    <div class="fire-modal-alert">산불이 감지되었습니다!</div>
-    <div class="fire-modal-info" id="fire-modal-info">
-      <div class="fire-modal-info-row">
-        <span class="fire-info-label">드론 ID</span>
-        <span class="fire-info-value" id="alert-drone">DR-01</span>
-      </div>
-      <div class="fire-modal-info-row">
-        <span class="fire-info-label">위치</span>
-        <span class="fire-info-value" id="alert-location">-</span>
-      </div>
-      <div class="fire-modal-info-row">
-        <span class="fire-info-label">발생 시간</span>
-        <span class="fire-info-value" id="alert-time">-</span>
-      </div>
-      <div class="fire-modal-info-row">
-        <span class="fire-info-label">신뢰도</span>
-        <span class="fire-info-value" id="alert-confidence">-</span>
-      </div>
+    <div class="feed-fs-body">
+      <img src="" alt="전체화면 피드" id="feed-fs-img" class="scanline-moving">
     </div>
-    <div class="fire-modal-actions">
-      <button class="btn" id="fire-modal-confirm" onclick="closeFireModal()">확인</button>
-      <button class="btn" id="fire-modal-respond" onclick="startResponse()">대응 시작</button>
+    <div class="feed-fs-footer" id="feed-fs-footer">
+      <span id="feed-fs-battery"></span>
+      <span style="font-size:0.65rem; color:var(--text-dim); font-family:var(--font-en);">CLICK ANYWHERE TO CLOSE</span>
     </div>
   </div>
-</div>
+  <div class="screen-danger-border" id="screen-danger-border"></div>
 
-<!-- 사이렌 오디오 -->
-<audio id="siren-audio" src="/static/audio/siren.mp3" loop></audio>
-
-<!-- 관제 화면 래퍼 -->
-<div class="monitor-wrapper" id="monitor-wrapper">
-
-  <!-- 서브 헤더 -->
-  <div class="monitor-header hud-header" id="monitor-header">
-    <h1 class="monitor-title">관제 메인화면</h1>
-    <div class="monitor-weather" id="monitor-weather">
-      <div class="w-row">
-        <span class="w-label">날씨</span>
-        <span class="w-val" id="mon-date">-</span>
+  <!-- 화재 경보 모달 -->
+  <div class="fire-modal-overlay hidden" id="fire-modal-overlay">
+    <div class="fire-modal" id="fire-modal">
+      <div class="fire-modal-header">WARNING</div>
+      <div class="fire-modal-siren">🚨</div>
+      <div class="fire-modal-alert">산불이 감지되었습니다!</div>
+      <div class="fire-modal-info" id="fire-modal-info">
+        <div class="fire-modal-info-row">
+          <span class="fire-info-label">드론 ID</span>
+          <span class="fire-info-value" id="alert-drone">DR-01</span>
+        </div>
+        <div class="fire-modal-info-row">
+          <span class="fire-info-label">위치</span>
+          <span class="fire-info-value" id="alert-location">-</span>
+        </div>
+        <div class="fire-modal-info-row">
+          <span class="fire-info-label">발생 시간</span>
+          <span class="fire-info-value" id="alert-time">-</span>
+        </div>
+        <div class="fire-modal-info-row">
+          <span class="fire-info-label">신뢰도</span>
+          <span class="fire-info-value" id="alert-confidence">-</span>
+        </div>
       </div>
-      <div class="w-row">
-        <span class="w-label">시간</span>
-        <span class="w-val" id="mon-time">-</span>
+      <div class="fire-modal-actions">
+        <button class="btn" id="fire-modal-confirm" onclick="closeFireModal()">확인</button>
+        <button class="btn" id="fire-modal-respond" onclick="startResponse()">대응 시작</button>
       </div>
     </div>
   </div>
 
-  <!-- 본체 -->
-  <div class="monitor-body" id="monitor-body">
+  <!-- 사이렌 오디오 -->
+  <audio id="siren-audio" src="/static/audio/siren.mp3" loop></audio>
 
-    <!-- 드론 그리드 4개 -->
-    <div class="drone-grid" id="drone-grid">
-      {% for drone in [
-          {'num': 1, 'id': 'DR-01', 'battery': 78},
-          {'num': 2, 'id': 'DR-02', 'battery': 65},
-          {'num': 3, 'id': 'DR-03', 'battery': 82},
-          {'num': 4, 'id': 'DR-04', 'battery': 81}
-      ] %}
-      <div class="drone-card hud-card hud-corner-full" id="drone-card-{{ drone.num }}">
-        <!-- HUD 코너 브라켓 (네 모서리) -->
-        <span class="hud-tl"></span><span class="hud-tr"></span>
-        <span class="hud-bl"></span><span class="hud-br"></span>
-        <div class="drone-card-header">
-          <span class="drone-label">DRONE {{ drone.num }}</span>
-          <div class="live-badge">
-            <div class="live-dot"></div> LIVE
+  <!-- 관제 화면 래퍼 -->
+  <div class="monitor-wrapper" id="monitor-wrapper">
+
+    <!-- 서브 헤더 -->
+    <div class="monitor-header hud-header" id="monitor-header">
+      <!-- 좌: 날씨 정보 (2행) -->
+      <div class="monitor-weather" id="monitor-weather">
+        <!-- 1행: 날씨 · 현재 기온 · 바람 -->
+        <div class="weather-row">
+          <div class="weather-item">
+            <span class="wi-icon" id="wx-icon">🌤️</span>
+            <span class="wi-label">날씨</span>
+            <span class="wi-val" id="wx-sky">맑음</span>
+          </div>
+          <div class="weather-item">
+            <span class="wi-label">현재 기온</span>
+            <span class="wi-val" id="wx-temp">--℃</span>
+          </div>
+          <div class="weather-item">
+            <span class="wi-label">바람</span>
+            <span class="wi-val" id="wx-wind">-- m/s</span>
           </div>
         </div>
-        <div class="drone-feed scanline-moving" style="cursor:pointer;"
-             onclick="openFeedFullscreen({{ drone.num }}, '{{ drone.battery }}')"
-             title="클릭하면 전체화면으로 확대됩니다">
-          <img src="/dashboard/video_feed"
-               alt="DRONE {{ drone.num }} 피드"
-               id="drone-feed-{{ drone.num }}"
-               style="width:100%; height:100%; object-fit:cover;">
-          <!-- 확대 힌트 아이콘 -->
-          <div class="feed-expand-hint">⛶</div>
-        </div>
-        <div class="drone-card-footer">
-          <span class="drone-battery">배터리 <span>{{ drone.battery }}%</span></span>
-          <div class="drone-status">
-            <div class="status-dot"></div> 연결 중
+        <!-- 2행: 습도 · 강우확률 · 강수량 -->
+        <div class="weather-row">
+          <div class="weather-item">
+            <span class="wi-label">습도</span>
+            <span class="wi-val" id="wx-humid">--%</span>
+          </div>
+          <div class="weather-item">
+            <span class="wi-label">강우확률</span>
+            <span class="wi-val" id="wx-rain-prob">--%</span>
+          </div>
+          <div class="weather-item">
+            <span class="wi-label">강수량</span>
+            <span class="wi-val" id="wx-precip">-- mm</span>
           </div>
         </div>
       </div>
-      {% endfor %}
+      <!-- 중앙: 제목 -->
+      <h1 class="monitor-title">관제 메인화면</h1>
+      <!-- 우: 날짜 / 시간 (기존 위치) -->
+      <div class="monitor-datetime" id="monitor-datetime">
+        <div class="w-row">
+          <span class="w-label">날짜</span>
+          <span class="w-val" id="mon-date">-</span>
+        </div>
+        <div class="w-row">
+          <span class="w-label">시간</span>
+          <span class="w-val" id="mon-time">-</span>
+        </div>
+      </div>
     </div>
 
-    <!-- 하단 2분할 -->
-    <div class="monitor-bottom" id="monitor-bottom">
+    <!-- 본체 -->
+    <div class="monitor-body" id="monitor-body">
 
-      <!-- 실시간 지도 -->
-      <div class="monitor-panel hud-panel" id="map-panel">
-        <div class="panel-header">
-          <span class="panel-title">📍 실시간 지도</span>
-          <span style="font-size:0.7rem; color:var(--text-muted);">드론 위치 추적</span>
+      <!-- 드론 그리드 4개 -->
+      <div class="drone-grid" id="drone-grid">
+        {% for drone in [
+        {'num': 1, 'id': 'DR-01', 'battery': 78},
+        {'num': 2, 'id': 'DR-02', 'battery': 65},
+        {'num': 3, 'id': 'DR-03', 'battery': 82},
+        {'num': 4, 'id': 'DR-04', 'battery': 81}
+        ] %}
+        <div class="drone-card hud-card hud-corner-full" id="drone-card-{{ drone.num }}">
+          <!-- HUD 코너 브라켓 (네 모서리) -->
+          <span class="hud-tl"></span><span class="hud-tr"></span>
+          <span class="hud-bl"></span><span class="hud-br"></span>
+          <div class="drone-card-header">
+            <span class="drone-label">DRONE {{ drone.num }}</span>
+            <div class="live-badge">
+              <div class="live-dot"></div> LIVE
+            </div>
+          </div>
+          <div class="drone-feed scanline-moving" style="cursor:pointer;"
+            onclick="openFeedFullscreen({{ drone.num }}, '{{ drone.battery }}')" title="클릭하면 전체화면으로 확대됩니다">
+            <img src="/dashboard/video_feed" alt="DRONE {{ drone.num }} 피드" id="drone-feed-{{ drone.num }}"
+              style="width:100%; height:100%; object-fit:cover;">
+            <!-- 확대 힌트 아이콘 -->
+            <div class="feed-expand-hint">⛶</div>
+          </div>
+          <div class="drone-card-footer">
+            <span class="drone-battery">배터리 <span>{{ drone.battery }}%</span></span>
+            <div class="drone-status">
+              <div class="status-dot"></div> 연결 중
+            </div>
+          </div>
         </div>
-        <div class="panel-body" style="padding:0;">
-          <div class="map-container hud-map" id="map-container">
-            <div class="map-grid"></div>
+        {% endfor %}
+      </div>
 
-            <!-- 드론 마커들 (위치는 CSS로 조정) -->
-            <div class="map-drone-marker" style="left:25%; top:60%;" id="marker-dr01">
-              <div class="drone-marker-dot ok"></div>
-              <div class="drone-marker-label">DR-01</div>
-            </div>
-            <div class="map-drone-marker" style="left:55%; top:35%;" id="marker-dr02">
-              <div class="drone-marker-dot ok"></div>
-              <div class="drone-marker-label">DR-02</div>
-            </div>
-            <div class="map-drone-marker" style="left:70%; top:55%;" id="marker-dr03">
-              <div class="drone-marker-dot fire"></div>
-              <div class="drone-marker-label">DR-03</div>
-            </div>
-            <div class="map-drone-marker" style="left:40%; top:75%;" id="marker-dr04">
-              <div class="drone-marker-dot ok"></div>
-              <div class="drone-marker-label">DR-04</div>
-            </div>
+      <!-- 하단 2분할 -->
+      <div class="monitor-bottom" id="monitor-bottom">
 
-            <!-- 화재 경고 삼각형 -->
-            <div class="map-warning" style="left:65%; top:48%;"
-                 id="map-warning-icon" title="화재 감지 구역">⚠️</div>
+        <!-- 실시간 지도 -->
+        <div class="monitor-panel hud-panel" id="map-panel">
+          <div class="panel-header">
+            <span class="panel-title">📍 실시간 지도</span>
+            <span style="font-size:0.7rem; color:var(--text-muted);">드론 위치 추적</span>
+          </div>
+          <div class="panel-body" style="padding:0;">
+            <div class="map-container hud-map" id="map-container">
+              <div class="map-grid"></div>
 
-            <!-- 지도 레이블 -->
-            <div style="position:absolute; bottom:10px; right:12px;
+              <!-- 드론 마커들 (위치는 CSS로 조정) -->
+              <div class="map-drone-marker" style="left:25%; top:60%;" id="marker-dr01">
+                <div class="drone-marker-dot ok"></div>
+                <div class="drone-marker-label">DR-01</div>
+              </div>
+              <div class="map-drone-marker" style="left:55%; top:35%;" id="marker-dr02">
+                <div class="drone-marker-dot ok"></div>
+                <div class="drone-marker-label">DR-02</div>
+              </div>
+              <div class="map-drone-marker" style="left:70%; top:55%;" id="marker-dr03">
+                <div class="drone-marker-dot fire"></div>
+                <div class="drone-marker-label">DR-03</div>
+              </div>
+              <div class="map-drone-marker" style="left:40%; top:75%;" id="marker-dr04">
+                <div class="drone-marker-dot ok"></div>
+                <div class="drone-marker-label">DR-04</div>
+              </div>
+
+              <!-- 화재 경고 삼각형 -->
+              <div class="map-warning" style="left:65%; top:48%;" id="map-warning-icon" title="화재 감지 구역">⚠️</div>
+
+              <!-- 지도 레이블 -->
+              <div style="position:absolute; bottom:10px; right:12px;
                         font-size:0.65rem; color:var(--text-dim);
                         font-family:var(--font-en);">
-              LIVE MAP · DRONE TRACKING
+                LIVE MAP · DRONE TRACKING
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- 최근 로그 -->
-      <div class="monitor-panel hud-panel" id="log-panel">
-        <div class="panel-header">
-          <span class="panel-title">📋 최근 로그</span>
-          <a href="/dashboard/history" style="font-size:0.72rem; color:var(--orange-main);">
-            전체 보기 →
-          </a>
+        <!-- 최근 로그 -->
+        <div class="monitor-panel hud-panel" id="log-panel">
+          <div class="panel-header">
+            <span class="panel-title">📋 최근 로그</span>
+            <a href="/dashboard/history" style="font-size:0.72rem; color:var(--orange-main);">
+              전체 보기 →
+            </a>
+          </div>
+          <div class="panel-body" style="padding:0; overflow:auto;">
+            <table class="log-table hud-table" id="recent-log-table">
+              <thead>
+                <tr>
+                  <th>No.</th>
+                  <th>드론 ID</th>
+                  <th>종류</th>
+                  <th>위치</th>
+                  <th>발생 시간</th>
+                  <th>상태</th>
+                </tr>
+              </thead>
+              <tbody id="recent-log-tbody">
+                <tr>
+                  <td colspan="6" style="text-align:center; color:var(--text-muted); padding:20px;">
+                    로그 로딩 중...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
-        <div class="panel-body" style="padding:0; overflow:auto;">
-          <table class="log-table hud-table" id="recent-log-table">
-            <thead>
-              <tr>
-                <th>No.</th>
-                <th>드론 ID</th>
-                <th>종류</th>
-                <th>위치</th>
-                <th>발생 시간</th>
-                <th>상태</th>
-              </tr>
-            </thead>
-            <tbody id="recent-log-tbody">
-              <tr>
-                <td colspan="6" style="text-align:center; color:var(--text-muted); padding:20px;">
-                  로그 로딩 중...
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
 
-    </div><!-- /monitor-bottom -->
-  </div><!-- /monitor-body -->
-</div><!-- /monitor-wrapper -->
+      </div><!-- /monitor-bottom -->
+    </div><!-- /monitor-body -->
+  </div><!-- /monitor-wrapper -->
 
-<script src="/static/js/dashboard.js"></script>
-<script>
-// 드론 피드 전체화면 열기/닫기
-window.openFeedFullscreen = function(droneNum, battery) {
-  const overlay = document.getElementById('feed-fullscreen-overlay');
-  const img     = document.getElementById('feed-fs-img');
-  const label   = document.getElementById('feed-fs-label');
-  const bat     = document.getElementById('feed-fs-battery');
-  // 입력캐시사를 막기 위해 스끜 재설정
-  img.src = '/dashboard/video_feed?t=' + Date.now();
-  label.textContent = 'DRONE ' + droneNum;
-  bat.textContent   = '배터리 ' + battery + '%';
-  overlay.classList.remove('hidden');
-  document.body.style.overflow = 'hidden';
-};
-window.closeFeedFullscreen = function() {
-  document.getElementById('feed-fullscreen-overlay').classList.add('hidden');
-  document.getElementById('feed-fs-img').src = '';
-  document.body.style.overflow = '';
-};
-// ESC 키로 닫기
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') closeFeedFullscreen();
-});
+  <script src="/static/js/dashboard.js"></script>
+  <script>
+    /* ── 날씨 정보 자동 로드 (Open-Meteo 무료 API — 서울 기준) ─────────────
+       [원리] open-meteo.com 는 API 키 없이 위도/경도만으로 기상 데이터 반환.
+       [갱신] 페이지 로드 즉시 + 10분마다 자동 갱신
+    ────────────────────────────────────────────────────────────────────── */
+    (function () {
+      function wmoToKr(code) {
+        if (code === 0) return { text: '맑음', icon: '☀️' };
+        if (code <= 2) return { text: '구름 조금', icon: '🌤️' };
+        if (code === 3) return { text: '흐림', icon: '☁️' };
+        if (code <= 49) return { text: '안개', icon: '🌫️' };
+        if (code <= 55) return { text: '이슬비', icon: '🌦️' };
+        if (code <= 65) return { text: '비', icon: '🌧️' };
+        if (code <= 75) return { text: '눈', icon: '❄️' };
+        if (code <= 82) return { text: '소나기', icon: '⛈️' };
+        return { text: '뇌우', icon: '⛈️' };
+      }
 
-/* ══════════════════════════════════════════════════
-   🔴 DEMO MODE — 화재 경보 자동 트리거
-   
-   [설명]
-   백엔드(서버)에서 실제 데이터를 받기 전까지
-   더미 데이터로 화재 경보 팝업을 자동으로 보여줌.
-   
-   [원리]
-   - setTimeout: "X초 뒤에 이 함수를 실행해" 라는 명령
-   - 3000ms = 3초 후 실행
-   
-   [해제 방법]
-   실제 백엔드 연결 후 아래 DEMO_MODE = false 로 변경
-══════════════════════════════════════════════════ */
-const DEMO_MODE = true;  // ← 백엔드 연결 후 false 로 변경
+      function updateWeatherUI(data) {
+        var cur = data.current;
+        var sky = wmoToKr(cur.weather_code);
+        document.getElementById('wx-icon').textContent = sky.icon;
+        document.getElementById('wx-sky').textContent = sky.text;
+        document.getElementById('wx-temp').textContent = cur.temperature_2m.toFixed(1) + '℃';
+        document.getElementById('wx-wind').textContent = (cur.wind_speed_10m / 3.6).toFixed(1) + ' m/s';
+        document.getElementById('wx-humid').textContent = cur.relative_humidity_2m + '%';
+        document.getElementById('wx-rain-prob').textContent = cur.precipitation_probability + '%';
+        document.getElementById('wx-precip').textContent = cur.precipitation.toFixed(1) + ' mm';
+      }
 
-if (DEMO_MODE) {
+      function setDummyWeather() {
+        document.getElementById('wx-icon').textContent = '🌤️';
+        document.getElementById('wx-sky').textContent = '맑음';
+        document.getElementById('wx-temp').textContent = '24.5℃';
+        document.getElementById('wx-wind').textContent = '2.3 m/s';
+        document.getElementById('wx-humid').textContent = '58%';
+        document.getElementById('wx-rain-prob').textContent = '10%';
+        document.getElementById('wx-precip').textContent = '0.0 mm';
+      }
 
-  // ── 더미 로그 데이터 ──────────────────────────────
-  const DEMO_LOGS = [
-    { drone_id:'DR-03', type:'화재', location:'경북 울진군 북면', time:'10:04:12', status:'대응중', confidence:0.94 },
-    { drone_id:'DR-01', type:'연기', location:'강원 삼척시 도계읍', time:'09:51:38', status:'완료',   confidence:0.81 },
-    { drone_id:'DR-02', type:'화재', location:'경남 밀양시 산내면', time:'09:38:05', status:'완료',   confidence:0.97 },
-    { drone_id:'DR-04', type:'연기', location:'전남 보성군 문덕면', time:'09:22:50', status:'완료',   confidence:0.76 },
-    { drone_id:'DR-01', type:'화재', location:'경북 포항시 북구 죽장면', time:'09:08:19', status:'완료', confidence:0.88 },
-  ];
+      function fetchWeather() {
+        var url = 'https://api.open-meteo.com/v1/forecast'
+          + '?latitude=37.5665&longitude=126.9780'
+          + '&current=temperature_2m,relative_humidity_2m,precipitation,'
+          + 'precipitation_probability,weather_code,wind_speed_10m'
+          + '&timezone=Asia%2FSeoul';
+        fetch(url)
+          .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+          .then(function (d) { updateWeatherUI(d); })
+          .catch(function (e) {
+            console.warn('[날씨] API 실패, 더미 표시:', e);
+            setDummyWeather();
+          });
+      }
 
-  // ── 최근 로그 테이블 더미 데이터 채우기 ───────────
-  window.addEventListener('DOMContentLoaded', function() {
-    const tbody = document.getElementById('recent-log-tbody');
-    if (!tbody) return;
-
-    let html = '';
-    DEMO_LOGS.forEach(function(log, idx) {
-      const typeBadge   = log.type === '화재'
-        ? '<span class="badge badge-fire">'   + log.type + '</span>'
-        : '<span class="badge badge-smoke">'  + log.type + '</span>';
-      const statusBadge = log.status === '대응중'
-        ? '<span class="badge badge-active">' + log.status + '</span>'
-        : '<span class="badge badge-ok">'     + log.status + '</span>';
-
-      html += '<tr>'
-        + '<td>' + (idx + 1) + '</td>'
-        + '<td><span style="font-family:var(--font-en);font-weight:600;">' + log.drone_id + '</span></td>'
-        + '<td>' + typeBadge + '</td>'
-        + '<td style="color:var(--text-muted);font-size:0.74rem;">' + log.location + '</td>'
-        + '<td style="font-family:var(--font-en);font-size:0.74rem;">' + log.time + '</td>'
-        + '<td>' + statusBadge + '</td>'
-        + '</tr>';
-    });
-    tbody.innerHTML = html;
-  });
-
-  // ── 3초 후 화재 경보 팝업 자동 실행 ──────────────
-  setTimeout(function() {
-    const alertLog = DEMO_LOGS[0];  // 가장 최근 화재 로그
-
-    // 모달 내용 채우기 (dashboard.js 의 showFireModal 과 동일 방식)
-    document.getElementById('alert-drone').textContent      = alertLog.drone_id;
-    document.getElementById('alert-location').textContent   = alertLog.location;
-    document.getElementById('alert-time').textContent       = alertLog.time;
-    document.getElementById('alert-confidence').textContent = (alertLog.confidence * 100).toFixed(0) + '%';
-
-    // 모달 + 화면 테두리 경보 표시
-    document.getElementById('fire-modal-overlay').classList.remove('hidden');
-    document.getElementById('screen-danger-border').classList.add('active');
-
-    // 사이렌 재생 (브라우저 정책상 클릭 없이는 안 될 수 있음)
-    const audio = document.getElementById('siren-audio');
-    if (audio) audio.play().catch(function() {
-      console.info('[DEMO] 브라우저 정책으로 자동 사이렌 재생 불가 — 확인 버튼 클릭 후 재생됩니다.');
+      window.addEventListener('DOMContentLoaded', function () {
+        fetchWeather();
+        setInterval(fetchWeather, 10 * 60 * 1000);
+      });
+    })();
+  </script>
+  <script>
+    // 드론 피드 전체화면 열기/닫기
+    window.openFeedFullscreen = function (droneNum, battery) {
+      const overlay = document.getElementById('feed-fullscreen-overlay');
+      const img = document.getElementById('feed-fs-img');
+      const label = document.getElementById('feed-fs-label');
+      const bat = document.getElementById('feed-fs-battery');
+      // 입력캐시사를 막기 위해 스끜 재설정
+      img.src = '/dashboard/video_feed?t=' + Date.now();
+      label.textContent = 'DRONE ' + droneNum;
+      bat.textContent = '배터리 ' + battery + '%';
+      overlay.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    };
+    window.closeFeedFullscreen = function () {
+      document.getElementById('feed-fullscreen-overlay').classList.add('hidden');
+      document.getElementById('feed-fs-img').src = '';
+      document.body.style.overflow = '';
+    };
+    // ESC 키로 닫기
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeFeedFullscreen();
     });
 
-    // DR-03 마커를 화재 상태로 변경
-    const marker03 = document.querySelector('#marker-dr03 .drone-marker-dot');
-    if (marker03) { marker03.classList.remove('ok'); marker03.classList.add('fire'); }
+    /* ══════════════════════════════════════════════════
+       🔴 DEMO MODE — 화재 경보 자동 트리거
+       
+       [설명]
+       백엔드(서버)에서 실제 데이터를 받기 전까지
+       더미 데이터로 화재 경보 팝업을 자동으로 보여줌.
+       
+       [원리]
+       - setTimeout: "X초 뒤에 이 함수를 실행해" 라는 명령
+       - 3000ms = 3초 후 실행
+       
+       [해제 방법]
+       실제 백엔드 연결 후 아래 DEMO_MODE = false 로 변경
+    ══════════════════════════════════════════════════ */
+    const DEMO_MODE = true;  // ← 백엔드 연결 후 false 로 변경
 
-  }, 3000);  // ← 3000ms = 3초 뒤 실행. 원하면 숫자를 바꾸세요.
+    if (DEMO_MODE) {
 
-}
-</script>
+      // ── 더미 로그 데이터 ──────────────────────────────
+      const DEMO_LOGS = [
+        { drone_id: 'DR-03', type: '화재', location: '경북 울진군 북면', time: '10:04:12', status: '대응중', confidence: 0.94 },
+        { drone_id: 'DR-01', type: '연기', location: '강원 삼척시 도계읍', time: '09:51:38', status: '완료', confidence: 0.81 },
+        { drone_id: 'DR-02', type: '화재', location: '경남 밀양시 산내면', time: '09:38:05', status: '완료', confidence: 0.97 },
+        { drone_id: 'DR-04', type: '연기', location: '전남 보성군 문덕면', time: '09:22:50', status: '완료', confidence: 0.76 },
+        { drone_id: 'DR-01', type: '화재', location: '경북 포항시 북구 죽장면', time: '09:08:19', status: '완료', confidence: 0.88 },
+      ];
+
+      // ── 최근 로그 테이블 더미 데이터 채우기 ───────────
+      window.addEventListener('DOMContentLoaded', function () {
+        const tbody = document.getElementById('recent-log-tbody');
+        if (!tbody) return;
+
+        let html = '';
+        DEMO_LOGS.forEach(function (log, idx) {
+          const typeBadge = log.type === '화재'
+            ? '<span class="badge badge-fire">' + log.type + '</span>'
+            : '<span class="badge badge-smoke">' + log.type + '</span>';
+          const statusBadge = log.status === '대응중'
+            ? '<span class="badge badge-active">' + log.status + '</span>'
+            : '<span class="badge badge-ok">' + log.status + '</span>';
+
+          html += '<tr>'
+            + '<td>' + (idx + 1) + '</td>'
+            + '<td><span style="font-family:var(--font-en);font-weight:600;">' + log.drone_id + '</span></td>'
+            + '<td>' + typeBadge + '</td>'
+            + '<td style="color:var(--text-muted);font-size:0.74rem;">' + log.location + '</td>'
+            + '<td style="font-family:var(--font-en);font-size:0.74rem;">' + log.time + '</td>'
+            + '<td>' + statusBadge + '</td>'
+            + '</tr>';
+        });
+        tbody.innerHTML = html;
+      });
+
+      // ── 3초 후 화재 경보 팝업 자동 실행 ──────────────
+      setTimeout(function () {
+        const alertLog = DEMO_LOGS[0];  // 가장 최근 화재 로그
+
+        // 모달 내용 채우기 (dashboard.js 의 showFireModal 과 동일 방식)
+        document.getElementById('alert-drone').textContent = alertLog.drone_id;
+        document.getElementById('alert-location').textContent = alertLog.location;
+        document.getElementById('alert-time').textContent = alertLog.time;
+        document.getElementById('alert-confidence').textContent = (alertLog.confidence * 100).toFixed(0) + '%';
+
+        // 모달 + 화면 테두리 경보 표시
+        document.getElementById('fire-modal-overlay').classList.remove('hidden');
+        document.getElementById('screen-danger-border').classList.add('active');
+
+        // 사이렌 재생 (브라우저 정책상 클릭 없이는 안 될 수 있음)
+        const audio = document.getElementById('siren-audio');
+        if (audio) audio.play().catch(function () {
+          console.info('[DEMO] 브라우저 정책으로 자동 사이렌 재생 불가 — 확인 버튼 클릭 후 재생됩니다.');
+        });
+
+        // DR-03 마커를 화재 상태로 변경
+        const marker03 = document.querySelector('#marker-dr03 .drone-marker-dot');
+        if (marker03) { marker03.classList.remove('ok'); marker03.classList.add('fire'); }
+
+      }, 3000);  // ← 3000ms = 3초 뒤 실행. 원하면 숫자를 바꾸세요.
+
+    }
+  </script>
 </body>
+
 </html>
