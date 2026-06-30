@@ -36,36 +36,36 @@ function sendOtp() {
         method: 'POST',
         body: formData
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status === "success") {
-            alert(data.message || "인증번호가 발송되었습니다.");
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "success") {
+                alert(data.message || "인증번호가 발송되었습니다.");
 
-            if (otpTimer) clearInterval(otpTimer);
+                if (otpTimer) clearInterval(otpTimer);
 
-            timeLeft = 180;
-            const timerBox = document.querySelector('#timer');
-            updateTimerDisplay(timerBox, timeLeft);
+                timeLeft = 180;
+                const timerBox = document.querySelector('#timer');
+                updateTimerDisplay(timerBox, timeLeft);
 
-            otpTimer = setInterval(() => {
-                timeLeft -= 1;
-                if (timeLeft >= 0) {
-                    updateTimerDisplay(timerBox, timeLeft);
-                } else {
-                    clearInterval(otpTimer);
-                    if (timerBox) timerBox.innerText = "시간 만료";
-                    alert("인증 시간이 만료되었습니다. 다시 시도해주세요.");
-                }
-            }, 1000);
+                otpTimer = setInterval(() => {
+                    timeLeft -= 1;
+                    if (timeLeft >= 0) {
+                        updateTimerDisplay(timerBox, timeLeft);
+                    } else {
+                        clearInterval(otpTimer);
+                        if (timerBox) timerBox.innerText = "시간 만료";
+                        alert("인증 시간이 만료되었습니다. 다시 시도해주세요.");
+                    }
+                }, 1000);
 
-        } else {
-            alert("발송 실패: " + (data.message || "오류가 발생했습니다."));
-        }
-    })
-    .catch(error => {
-        console.error("에러 발생:", error);
-        alert("서버 통신 중 오류가 발생했습니다.");
-    });
+            } else {
+                alert("발송 실패: " + (data.message || "오류가 발생했습니다."));
+            }
+        })
+        .catch(error => {
+            console.error("에러 발생:", error);
+            alert("서버 통신 중 오류가 발생했습니다.");
+        });
 }
 
 function checkOtp() {
@@ -85,30 +85,30 @@ function checkOtp() {
         method: 'POST',
         body: formData
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status === "success") {
-            alert("인증에 성공했습니다!");
-            isOtpVerified = true;
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "success") {
+                alert("인증에 성공했습니다!");
+                isOtpVerified = true;
 
-            if (otpTimer) clearInterval(otpTimer);
+                if (otpTimer) clearInterval(otpTimer);
 
-            const timerBox = document.querySelector('#timer');
-            if (timerBox) timerBox.innerText = "인증 완료";
+                const timerBox = document.querySelector('#timer');
+                if (timerBox) timerBox.innerText = "인증 완료";
 
-            if (idInput) idInput.readOnly = true;
-            if (nameInput) nameInput.readOnly = true;
-            if (emailInput) emailInput.readOnly = true;
-            if (otpInput) otpInput.readOnly = true;
+                if (idInput) idInput.readOnly = true;
+                if (nameInput) nameInput.readOnly = true;
+                if (emailInput) emailInput.readOnly = true;
+                if (otpInput) otpInput.readOnly = true;
 
-        } else {
-            alert("인증 실패: " + data.message);
-        }
-    })
-    .catch(error => {
-        console.error("에러 발생:", error);
-        alert("서버 통신 중 오류가 발생했습니다.");
-    });
+            } else {
+                alert("인증 실패: " + data.message);
+            }
+        })
+        .catch(error => {
+            console.error("에러 발생:", error);
+            alert("서버 통신 중 오류가 발생했습니다.");
+        });
 }
 
 function goFindId() {

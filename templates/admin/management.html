@@ -419,7 +419,7 @@
                 <td>
                   <button id="confirm-btn-{{ log.id }}"
                     class="confirm-btn {{ 'confirmed' if log.confirmed else 'unconfirmed' }}"
-                    onclick="toggleConfirm({{ log.id }})">
+                    onclick="toggleConfirm('{{ log.id }}')">
                     {% if log.confirmed %}✓ 확인됨{% else %}미확인{% endif %}
                   </button>
                 </td>
