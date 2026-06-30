@@ -1,0 +1,23 @@
+/* ── OTP 입력 행 ────────────────────────────────────── */
+.otp-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.otp-row .input-group {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+/* ── 타이머 ─────────────────────────────────────────── */
+.otp-timer {
+  font-family: var(--font-en, 'Outfit', sans-serif);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--red-bright, #ff3333);
+  min-width: 52px;
+  text-align: center;
+  white-space: nowrap;
+}

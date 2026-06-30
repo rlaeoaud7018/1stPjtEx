@@ -1,0 +1,157 @@
+/* ══════════════════════════════════════════════════
+   NOTICE — 공지사항 (목록 / 상세 / 작성)
+══════════════════════════════════════════════════ */
+.notice-wrapper {
+  padding-top: var(--nav-height);
+  min-height: 100vh;
+  background: var(--bg-base);
+  padding-bottom: 60px;
+}
+
+.notice-container {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+
+.notice-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.notice-page-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* ── 목록 ────────────────────────────────────────── */
+.notice-list {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.notice-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-dim);
+  cursor: pointer;
+  transition: background 0.2s;
+  text-decoration: none;
+  color: inherit;
+}
+.notice-item:last-child { border-bottom: none; }
+.notice-item:hover { background: rgba(255, 90, 0, 0.05); }
+
+.notice-pin { color: var(--orange-main); font-size: 0.8rem; min-width: 14px; }
+
+.notice-item-title {
+  flex: 1;
+  font-size: 0.88rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+.notice-item.pinned .notice-item-title { color: #fff; font-weight: 600; }
+
+.notice-meta { font-size: 0.72rem; color: var(--text-muted); white-space: nowrap; }
+
+/* ── 상세 ────────────────────────────────────────── */
+.notice-detail-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.notice-detail-header {
+  padding: 24px 28px;
+  border-bottom: 1px solid var(--border-dim);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.notice-detail-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+}
+
+.notice-detail-meta {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  display: flex;
+  gap: 16px;
+}
+
+.notice-detail-body {
+  padding: 28px;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  line-height: 1.8;
+  white-space: pre-wrap;
+}
+
+.notice-detail-footer {
+  padding: 16px 28px;
+  border-top: 1px solid var(--border-dim);
+  display: flex;
+  gap: 10px;
+}
+
+/* ── 작성 폼 ─────────────────────────────────────── */
+.notice-write-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-md);
+  padding: 32px;
+}
+
+.notice-write-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 24px;
+}
+
+.form-group { margin-bottom: 18px; }
+
+.form-label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.form-textarea {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 0.88rem;
+  padding: 12px 14px;
+  resize: vertical;
+  min-height: 160px;
+  outline: none;
+  transition: border-color 0.2s;
+  line-height: 1.6;
+}
+.form-textarea:focus { border-color: var(--orange-main); }
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  cursor: pointer;
+}

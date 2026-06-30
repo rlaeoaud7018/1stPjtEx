@@ -1,0 +1,136 @@
+/* ══════════════════════════════════════════════════
+   NAV — 네비게이션 바
+   nav.html을 include하는 모든 페이지에서 로드
+══════════════════════════════════════════════════ */
+#main-nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 9999;
+  height: var(--nav-height);
+  background: rgba(5, 8, 16, 0.97);
+  border-bottom: 1px solid rgba(255, 90, 0, 0.25);
+  backdrop-filter: blur(16px);
+}
+
+.nav-inner {
+  max-width: 1440px;
+  margin: 0 auto;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 32px;
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
+.logo-icon { font-size: 1.5rem; line-height: 1; }
+
+.logo-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.logo-title {
+  font-family: var(--font-en);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.05em;
+}
+
+.logo-title .text-fire { color: var(--orange-main); }
+
+.logo-sub {
+  font-size: 0.62rem;
+  color: var(--text-muted);
+  font-weight: 300;
+}
+
+.nav-menu {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.nav-link {
+  font-family: var(--font-kr);
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  letter-spacing: 0.03em;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  color: var(--text-primary);
+  background: rgba(255, 90, 0, 0.12);
+}
+
+.nav-link.active {
+  color: var(--orange-main);
+  border-bottom: 2px solid var(--orange-main);
+}
+
+.nav-hamburger {
+  display: none;
+  font-size: 1.3rem;
+  color: var(--text-muted);
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  transition: color 0.2s;
+}
+.nav-hamburger:hover { color: var(--orange-main); }
+
+/* ── HUD 네비 강화 ───────────────────────────────── */
+#main-nav.hud-nav {
+  background: rgba(4, 7, 14, 0.98);
+  border-bottom: 1px solid rgba(255, 90, 0, 0.2) !important;
+  box-shadow:
+    0 1px 0 rgba(255, 90, 0, 0.12),
+    0 4px 20px rgba(0, 0, 0, 0.7);
+}
+
+.logo-title.neon-logo {
+  text-shadow:
+    0 0 6px rgba(255, 90, 0, 0.5),
+    0 0 16px rgba(255, 60, 0, 0.2);
+}
+
+.logo-title.neon-logo .text-fire {
+  color: var(--orange-main);
+  text-shadow:
+    0 0 8px rgba(255, 90, 0, 0.8),
+    0 0 20px rgba(255, 60, 0, 0.5),
+    0 0 40px rgba(255, 40, 0, 0.2);
+}
+
+/* ── 반응형 ──────────────────────────────────────── */
+@media (max-width: 768px) {
+  .nav-menu {
+    display: none;
+  }
+  .nav-menu.open {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: var(--nav-height);
+    left: 0; right: 0;
+    background: rgba(5, 8, 16, 0.98);
+    padding: 16px;
+    border-bottom: 1px solid var(--border-dim);
+  }
+  .nav-hamburger { display: flex; }
+}

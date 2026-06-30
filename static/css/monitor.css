@@ -1,0 +1,597 @@
+/* ══════════════════════════════════════════════════
+   MONITOR — 실시간 모니터링 페이지
+══════════════════════════════════════════════════ */
+
+/* ── 화재 경보 모달 ──────────────────────────────── */
+.fire-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9500;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(6px);
+}
+.fire-modal-overlay.hidden { display: none; }
+
+.fire-modal {
+  background: #080c14;
+  border: 2px solid var(--red-vivid);
+  border-radius: var(--radius-md);
+  padding: 32px 36px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  box-shadow:
+    0 0 40px rgba(220, 20, 20, 0.6),
+    0 0 80px rgba(180, 0, 0, 0.3),
+    0 20px 60px rgba(0, 0, 0, 0.8);
+  animation: dangerPulse 1.2s ease infinite;
+}
+
+.fire-modal-header {
+  font-family: var(--font-en);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+
+.fire-modal-siren {
+  font-size: 3rem;
+  margin-bottom: 12px;
+  animation: sirenBlink 0.6s ease infinite;
+}
+
+.fire-modal-alert {
+  background: var(--red-vivid);
+  border-radius: var(--radius-sm);
+  padding: 10px 20px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 24px;
+  letter-spacing: 0.02em;
+  text-shadow:
+    0 0 8px rgba(255, 100, 100, 0.6),
+    1px 1px 0 rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 12px rgba(220, 20, 20, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.fire-modal-info {
+  text-align: left;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.fire-modal-info-row {
+  display: flex;
+  gap: 12px;
+  font-size: 0.85rem;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border-dim);
+}
+.fire-modal-info-row:last-child { border-bottom: none; }
+
+.fire-info-label { color: var(--text-muted); min-width: 70px; }
+.fire-info-value { color: var(--text-primary); font-weight: 500; }
+
+.fire-modal-actions { display: flex; gap: 10px; }
+.fire-modal-actions .btn { flex: 1; background: var(--red-vivid); color: #fff; }
+.fire-modal-actions .btn:hover { background: #ff2828; }
+
+/* 화면 테두리 경보 */
+.screen-danger-border {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  pointer-events: none;
+  border: 4px solid transparent;
+  transition: border-color 0.3s;
+}
+.screen-danger-border.active {
+  border-color: var(--red-vivid);
+  box-shadow: inset 0 0 40px rgba(220, 20, 20, 0.3);
+  animation: borderPulse 0.8s ease infinite;
+}
+
+/* ── 모니터 레이아웃 ──────────────────────────────── */
+.monitor-wrapper {
+  padding-top: var(--nav-height);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg-base);
+}
+
+.monitor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 24px;
+  background: rgba(8, 12, 22, 0.95);
+  border-bottom: 1px solid var(--border-dim);
+  position: relative;
+  flex-shrink: 0;
+  gap: 12px;
+}
+
+.monitor-title {
+  font-family: var(--font-kr);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.05em;
+  flex: 1;
+  text-align: center;
+}
+
+.monitor-weather {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  align-items: flex-end;
+}
+
+.weather-row { display: flex; align-items: center; gap: 14px; }
+
+.weather-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-en);
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+.weather-item .wi-label {
+  color: rgba(255, 140, 60, 0.75);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-family: var(--font-kr);
+}
+.weather-item .wi-val {
+  color: #d8e8f0;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-shadow: 0 0 8px rgba(100, 180, 240, 0.4);
+}
+.weather-item .wi-icon { font-size: 0.85rem; line-height: 1; }
+
+.monitor-datetime {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+.monitor-datetime .w-row,
+.monitor-weather .w-row {
+  display: flex;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  justify-content: flex-end;
+}
+.monitor-datetime .w-label,
+.monitor-weather .w-label {
+  color: var(--orange-main);
+  font-weight: 600;
+  font-family: var(--font-en);
+}
+.monitor-datetime .w-val,
+.monitor-weather .w-val {
+  color: var(--text-primary);
+  font-family: var(--font-en);
+  font-size: 0.82rem;
+}
+
+.monitor-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 10px;
+  gap: 10px;
+}
+
+/* ── 드론 그리드 ──────────────────────────────────── */
+.drone-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  flex: 4;
+  min-height: 0;
+}
+
+.drone-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.drone-card:hover { border-color: var(--border-accent); }
+
+.drone-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid var(--border-dim);
+  flex-shrink: 0;
+}
+
+.drone-label {
+  font-family: var(--font-en);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.08em;
+}
+
+.live-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-en);
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--live-red);
+  letter-spacing: 0.1em;
+}
+
+.live-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--live-red);
+  animation: livePulse 1.2s ease infinite;
+}
+
+.drone-feed { flex: 1; min-height: 0; overflow: hidden; position: relative; }
+.drone-feed img { width: 100%; height: 100%; object-fit: cover; }
+
+.drone-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 12px;
+  background: rgba(0, 0, 0, 0.3);
+  font-size: 0.72rem;
+  flex-shrink: 0;
+}
+
+.drone-battery { font-family: var(--font-en); color: var(--text-muted); }
+.drone-battery span { color: var(--success); font-weight: 600; }
+
+.drone-status {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.7rem;
+  color: var(--connected);
+  font-weight: 500;
+}
+
+.status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--connected); }
+
+/* ── 피드 확대 힌트 ──────────────────────────────── */
+.feed-expand-hint {
+  position: absolute;
+  bottom: 8px; right: 8px;
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.5);
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 4px;
+  padding: 2px 6px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+  z-index: 7;
+  line-height: 1.4;
+}
+.drone-feed:hover .feed-expand-hint { opacity: 1; }
+
+/* ── 모니터 하단 패널 ────────────────────────────── */
+.monitor-bottom {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  flex: 5;
+  min-height: 0;
+}
+
+.monitor-panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border-dim);
+  background: rgba(255, 255, 255, 0.02);
+  flex-shrink: 0;
+}
+
+.panel-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: 0.04em;
+}
+
+.panel-body { flex: 1; overflow: auto; padding: 12px; }
+
+/* ── 지도 ────────────────────────────────────────── */
+.map-container {
+  position: relative;
+  width: 100%; height: 100%;
+  background: #080e1c;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.map-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(40, 70, 110, 0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(40, 70, 110, 0.15) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.map-drone-marker {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  cursor: default;
+}
+
+.drone-marker-dot {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--orange-main);
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 3px rgba(255, 90, 0, 0.15), 0 0 10px var(--orange-glow);
+  animation: markerPulse 2s ease infinite;
+}
+.drone-marker-dot.fire {
+  background: var(--red-bright);
+  box-shadow: 0 0 0 3px rgba(255, 48, 48, 0.2), 0 0 14px rgba(255, 48, 48, 0.7);
+  animation: markerFirePulse 0.8s ease infinite;
+}
+.drone-marker-dot.ok {
+  background: var(--connected);
+  box-shadow: 0 0 0 3px rgba(0, 216, 120, 0.15), 0 0 10px rgba(0, 216, 120, 0.4);
+}
+
+.drone-marker-label {
+  font-family: var(--font-en);
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  background: rgba(8, 14, 28, 0.85);
+  padding: 2px 5px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+.map-warning {
+  position: absolute;
+  font-size: 1.8rem;
+  transform: translate(-50%, -50%);
+  animation: warningBlink 1s ease infinite;
+}
+
+/* ── 드론 전체화면 오버레이 ──────────────────────── */
+.feed-fullscreen-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9800;
+  background: rgba(2, 4, 10, 0.97);
+  display: flex;
+  flex-direction: column;
+  animation: fadeIn 0.2s ease;
+}
+.feed-fullscreen-overlay.hidden { display: none; }
+
+.feed-fs-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 24px;
+  background: rgba(8, 14, 26, 0.98);
+  border-bottom: 1px solid rgba(255, 90, 0, 0.3);
+  flex-shrink: 0;
+  box-shadow: 0 1px 0 rgba(255, 90, 0, 0.15);
+}
+
+.feed-fs-label {
+  font-family: var(--font-en);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #e8c090;
+  text-shadow: 0 0 10px rgba(255, 140, 40, 0.7);
+}
+
+.feed-fs-close {
+  margin-left: auto;
+  font-family: var(--font-en);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-sm);
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.06em;
+}
+.feed-fs-close:hover {
+  color: var(--text-primary);
+  border-color: var(--orange-main);
+  box-shadow: 0 0 8px rgba(255, 90, 0, 0.3);
+}
+
+.feed-fs-body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+.feed-fs-body img { width: 100%; height: 100%; object-fit: contain; display: block; }
+
+.feed-fs-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 24px;
+  background: rgba(8, 14, 26, 0.98);
+  border-top: 1px solid rgba(255, 90, 0, 0.15);
+  font-family: var(--font-en);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* ── HUD 모니터 강화 ──────────────────────────────── */
+.monitor-header.hud-header {
+  background: linear-gradient(90deg,
+    rgba(4, 8, 18, 0.98) 0%,
+    rgba(10, 16, 30, 0.97) 50%,
+    rgba(4, 8, 18, 0.98) 100%);
+  border-bottom: 1px solid rgba(255, 90, 0, 0.3) !important;
+  box-shadow:
+    0 1px 0 rgba(255, 90, 0, 0.15),
+    0 2px 12px rgba(0, 0, 0, 0.6);
+}
+.monitor-header.hud-header .monitor-title {
+  font-family: var(--font-en);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #ccdae8;
+  text-shadow:
+    0 0 8px rgba(100, 160, 220, 0.5),
+    0 0 20px rgba(60, 120, 200, 0.2);
+}
+
+.drone-card.hud-card {
+  border: 1px solid rgba(255, 90, 0, 0.2);
+  background: linear-gradient(160deg, rgba(12, 18, 34, 1) 0%, rgba(8, 14, 26, 1) 100%);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+.drone-card.hud-card:hover {
+  border-color: var(--orange-main);
+  box-shadow:
+    0 0 0 1px rgba(255, 90, 0, 0.3),
+    0 0 16px rgba(255, 90, 0, 0.18),
+    0 4px 20px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.drone-card.hud-card .drone-card-header {
+  background: linear-gradient(90deg, rgba(255, 90, 0, 0.08) 0%, rgba(0, 0, 0, 0) 100%);
+  border-bottom: 1px solid rgba(255, 90, 0, 0.2);
+}
+.drone-card.hud-card .drone-label {
+  color: #e8c090;
+  text-shadow: 0 0 8px rgba(255, 140, 40, 0.6);
+  letter-spacing: 0.12em;
+}
+.drone-card.hud-card .live-badge {
+  color: #ff4040;
+  text-shadow: 0 0 6px rgba(255, 40, 40, 0.8);
+}
+.drone-card.hud-card .live-dot { box-shadow: 0 0 6px rgba(255, 32, 32, 0.9); }
+.drone-card.hud-card .drone-card-footer {
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.4) 100%);
+  border-top: 1px solid rgba(255, 90, 0, 0.1);
+}
+.drone-card.hud-card .drone-battery span { text-shadow: 0 0 6px rgba(0, 220, 130, 0.6); }
+.drone-card.hud-card .drone-status { text-shadow: 0 0 6px rgba(0, 220, 130, 0.5); }
+.drone-card.hud-card .status-dot { box-shadow: 0 0 6px rgba(0, 216, 120, 0.7); }
+
+.monitor-panel.hud-panel {
+  border: 1px solid rgba(255, 90, 0, 0.15);
+  background: linear-gradient(180deg, rgba(10, 16, 30, 0.98) 0%, rgba(6, 10, 20, 0.98) 100%);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+.monitor-panel.hud-panel .panel-header {
+  background: linear-gradient(90deg, rgba(255, 90, 0, 0.07) 0%, transparent 100%);
+  border-bottom: 1px solid rgba(255, 90, 0, 0.2);
+}
+.monitor-panel.hud-panel .panel-title {
+  color: var(--orange-main);
+  text-shadow: 0 0 8px rgba(255, 90, 0, 0.5);
+  letter-spacing: 0.06em;
+}
+
+.map-container.hud-map {
+  background: linear-gradient(135deg, #04080e 0%, #060c18 50%, #040810 100%);
+  box-shadow: inset 0 0 40px rgba(0, 30, 60, 0.4);
+}
+.map-container.hud-map .map-grid {
+  background-image:
+    linear-gradient(rgba(0, 150, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 150, 255, 0.08) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+.map-container.hud-map::before {
+  content: '';
+  position: absolute;
+  top: 50%; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(0, 150, 255, 0.08) 30%, rgba(0, 150, 255, 0.15) 50%, rgba(0, 150, 255, 0.08) 70%, transparent 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+.map-container.hud-map::after {
+  content: '';
+  position: absolute;
+  left: 50%; top: 0; bottom: 0;
+  width: 1px;
+  background: linear-gradient(180deg, transparent 0%, rgba(0, 150, 255, 0.08) 30%, rgba(0, 150, 255, 0.15) 50%, rgba(0, 150, 255, 0.08) 70%, transparent 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.log-table.hud-table th {
+  background: rgba(255, 90, 0, 0.05);
+  border-bottom: 1px solid rgba(255, 90, 0, 0.2) !important;
+  color: rgba(255, 140, 60, 0.8);
+  text-shadow: 0 0 8px rgba(255, 90, 0, 0.3);
+}
+.log-table.hud-table tr:hover td { background: rgba(255, 90, 0, 0.04); }
+
+/* ── 반응형 ──────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .drone-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 768px) {
+  .drone-grid     { grid-template-columns: repeat(2, 1fr); }
+  .monitor-bottom { grid-template-columns: 1fr; }
+}

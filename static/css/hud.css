@@ -1,0 +1,180 @@
+/* ══════════════════════════════════════════════════
+   HUD — 코너 브라켓 / 네온 / 스캔라인 유틸리티
+   커스텀 디자인을 사용하는 모든 페이지에서 로드
+══════════════════════════════════════════════════ */
+
+/* ── HUD 코너 브라켓 (2개 모서리) ───────────────── */
+.hud-corner { position: relative; }
+
+.hud-corner::before,
+.hud-corner::after {
+  content: '';
+  position: absolute;
+  width: var(--hud-bracket-sz);
+  height: var(--hud-bracket-sz);
+  pointer-events: none;
+  z-index: 10;
+  transition: width 0.3s, height 0.3s;
+}
+
+.hud-corner::before {
+  top: 0; left: 0;
+  border-top:  var(--hud-bracket-w) solid var(--orange-main);
+  border-left: var(--hud-bracket-w) solid var(--orange-main);
+  filter: drop-shadow(0 0 4px var(--neon-orange));
+}
+
+.hud-corner::after {
+  bottom: 0; right: 0;
+  border-bottom: var(--hud-bracket-w) solid var(--orange-main);
+  border-right:  var(--hud-bracket-w) solid var(--orange-main);
+  filter: drop-shadow(0 0 4px var(--neon-orange));
+}
+
+.hud-corner:hover::before,
+.hud-corner:hover::after {
+  width:  calc(var(--hud-bracket-sz) * 1.8);
+  height: calc(var(--hud-bracket-sz) * 1.8);
+}
+
+/* ── HUD 코너 브라켓 (4개 모서리 — span 태그 방식) */
+.hud-corner-full { position: relative; }
+
+.hud-tl, .hud-tr, .hud-bl, .hud-br {
+  position: absolute;
+  width: var(--hud-bracket-sz);
+  height: var(--hud-bracket-sz);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.hud-tl {
+  top: 0; left: 0;
+  border-top:  var(--hud-bracket-w) solid var(--orange-main);
+  border-left: var(--hud-bracket-w) solid var(--orange-main);
+  filter: drop-shadow(0 0 5px var(--neon-orange));
+}
+
+.hud-tr {
+  top: 0; right: 0;
+  border-top:   var(--hud-bracket-w) solid var(--orange-main);
+  border-right: var(--hud-bracket-w) solid var(--orange-main);
+  filter: drop-shadow(0 0 5px var(--neon-orange));
+}
+
+.hud-bl {
+  bottom: 0; left: 0;
+  border-bottom: var(--hud-bracket-w) solid var(--orange-main);
+  border-left:   var(--hud-bracket-w) solid var(--orange-main);
+  filter: drop-shadow(0 0 5px var(--neon-orange));
+}
+
+.hud-br {
+  bottom: 0; right: 0;
+  border-bottom: var(--hud-bracket-w) solid var(--orange-main);
+  border-right:  var(--hud-bracket-w) solid var(--orange-main);
+  filter: drop-shadow(0 0 5px var(--neon-orange));
+}
+
+/* ── 네온 텍스트 ──────────────────────────────────── */
+.neon-text-orange {
+  color: #ff8040;
+  text-shadow:
+    0 0 4px rgba(255, 100, 20, 0.95),
+    0 0 12px rgba(255, 80, 0, 0.7),
+    0 0 28px rgba(255, 60, 0, 0.4);
+}
+
+.neon-text-red {
+  color: #ff4444;
+  text-shadow:
+    0 0 4px rgba(255, 50, 50, 0.95),
+    0 0 12px rgba(220, 20, 20, 0.8),
+    0 0 30px rgba(180, 0, 0, 0.4);
+}
+
+.neon-text-cyan {
+  color: #40d8ff;
+  text-shadow:
+    0 0 4px rgba(0, 210, 255, 0.95),
+    0 0 12px rgba(0, 180, 240, 0.7),
+    0 0 28px rgba(0, 150, 220, 0.4);
+}
+
+.neon-text-green {
+  color: #30eda0;
+  text-shadow:
+    0 0 4px rgba(0, 230, 140, 0.95),
+    0 0 12px rgba(0, 200, 120, 0.7),
+    0 0 28px rgba(0, 160, 90, 0.4);
+}
+
+/* ── 네온 테두리 박스 ─────────────────────────────── */
+.neon-border-orange {
+  border-color: var(--orange-main) !important;
+  box-shadow:
+    0 0 6px rgba(255, 90, 0, 0.5),
+    0 0 14px rgba(255, 90, 0, 0.2),
+    inset 0 0 6px rgba(255, 90, 0, 0.05);
+}
+
+.neon-border-red {
+  border-color: var(--red-vivid) !important;
+  box-shadow:
+    0 0 6px rgba(220, 20, 20, 0.5),
+    0 0 14px rgba(220, 20, 20, 0.2),
+    inset 0 0 6px rgba(220, 20, 20, 0.05);
+}
+
+/* ── 스캔라인 (정적) ──────────────────────────────── */
+.scanline { position: relative; overflow: hidden; }
+
+.scanline::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.08) 2px,
+    rgba(0, 0, 0, 0.08) 4px
+  );
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* ── 스캔라인 (흐르는 — 드론 피드용) ─────────────── */
+.scanline-moving { position: relative; overflow: hidden; }
+
+.scanline-moving::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  height: 60px;
+  background: linear-gradient(
+    transparent 0%,
+    rgba(255, 90, 0, 0.06) 40%,
+    rgba(255, 90, 0, 0.10) 50%,
+    rgba(255, 90, 0, 0.06) 60%,
+    transparent 100%
+  );
+  display: none; /* 노이즈 비활성화 */
+  pointer-events: none;
+  z-index: 6;
+}
+
+.scanline-moving::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0, 0, 0, 0.06) 3px,
+    rgba(0, 0, 0, 0.06) 4px
+  );
+  pointer-events: none;
+  z-index: 5;
+}

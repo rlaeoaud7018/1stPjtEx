@@ -1,44 +1,62 @@
-<!-- 회원 찾기 -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    
-    {% include 'include/title.html' %}
-
-    <link href="{{ url_for('static', filename='css/common.css')}}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/member.css')}}" rel="stylesheet">
-
-    <script src="{{ url_for('static', filename='js/member/member.js')}}"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>드론 소방 관제 시스템</title>
+  <link rel="stylesheet" href="/static/css/base.css">
+  <link rel="stylesheet" href="/static/css/nav.css">
+  <link rel="stylesheet" href="/static/css/hud.css">
+  <link rel="stylesheet" href="/static/css/auth.css">
 </head>
 <body>
+{% include 'include/nav.html' %}
 
-    {% include 'include/header.html' %}
-    {% include 'include/nav.html' %}
+<main class="auth-page" id="pw-find-page">
+  <div class="auth-card" id="pw-find-card">
+    <h1 class="auth-title">비밀번호 찾기</h1>
+    <p class="auth-subtitle">가입 시 등록한 아이디, 이름, 이메일로 비밀번호를 찾을 수 있습니다.</p>
 
-    <article id="pw_find_wrap">
+    <form action="/member/pw_find_confirm" method="post" name="pw_find_form">
+      <div class="input-group">
+        <span class="input-icon">👤</span>
+        <input class="form-input" type="text" name="mId" placeholder="아이디">
+      </div>
 
-        <div class="pw_find_form">
-            <form action="/member/pw_find_confirm" method="post" name="pw_find_form">
-                <input class="" type="text" name="mId" placeholder="아이디">
-                <br>
-                <input class="" type="text" name="mName" placeholder="성함">
-                <br>
-                <input class="" type="email" name="mMail" placeholder="이메일">
-                <input type="button" placeholder="인증번호 받기" onclick="sendOtp();">
-                <br>
-                <input class="" type="text" name="otp" placeholder="인증번호입력">
-                <div id="timer" style="color: red; font-weight: bold; display: inline-block; margin-left: 5px;">03:00</div>
-                <input type="button" value="인증번호 인증" onclick="checkOtp();">
-                <br>
-                <input class="" type="button" value="비밀번호 찾기" onclick="goFindPw()">
-            </form>
-                <a href="/"><button>메인으로</button></a>
+      <div class="input-group">
+        <span class="input-icon">📋</span>
+        <input class="form-input" type="text" name="mName" placeholder="성함">
+      </div>
+
+      <div class="otp-row">
+        <div class="input-group">
+          <span class="input-icon">✉️</span>
+          <input class="form-input" type="email" name="mMail" placeholder="이메일">
         </div>
+        <button type="button" class="btn btn-outline btn-sm" onclick="sendOtp()">인증번호 받기</button>
+      </div>
 
-    </article>
+      <div class="otp-row">
+        <div class="input-group">
+          <input class="form-input" type="text" name="otp" placeholder="인증번호 입력">
+        </div>
+        <span id="timer" class="otp-timer">03:00</span>
+        <button type="button" class="btn btn-outline btn-sm" onclick="checkOtp()">인증 확인</button>
+      </div>
 
-    {% include 'include/footer.html' %}
+      <div class="form-actions">
+        <button type="button" class="btn btn-primary" onclick="goFindPw()">비밀번호 찾기</button>
+      </div>
+    </form>
 
+    <div class="form-links">
+      <a href="/" class="form-link">메인으로</a>
+      <span style="color:var(--border-mid);">|</span>
+      <a href="/member/signin_form" class="form-link">로그인</a>
+    </div>
+  </div>
+</main>
+
+<script src="/static/js/member/member.js"></script>
 </body>
 </html>
