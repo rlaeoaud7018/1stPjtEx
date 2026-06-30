@@ -1,0 +1,42 @@
+<!-- 회원 찾기 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    
+    {% include 'include/title.html' %}
+
+    <link href="{{ url_for('static', filename='css/common.css')}}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/member.css')}}" rel="stylesheet">
+
+    <script src="{{ url_for('static', filename='js/member/member.js')}}"></script>
+</head>
+<body>
+
+    {% include 'include/header.html' %}
+    {% include 'include/nav.html' %}
+
+    <article id="id_find_wrap">
+
+        <div class="id_find_form">
+            <form action="/member/id_find_confirm" method="post" name="id_find_form">
+                <input class="" type="text" name="mName" placeholder="성함">
+                <br>
+                <input class="" type="email" name="mMail" placeholder="이메일">
+                <input type="button" placeholder="인증번호 받기" onclick="sendOtp();">
+                <br>
+                <input class="" type="text" name="otp" placeholder="인증번호입력">
+                <div id="timer" style="color: red; font-weight: bold; display: inline-block; margin-left: 5px;">03:00</div>
+                <input type="button" placeholder="인증번호 인증" onclick="checkOtp();">
+                <br>
+                <input class="" type="button" value="아이디 찾기" onclick="goFindId()">
+            </form>
+                <a href="/"><button>메인으로</button></a>
+        </div>
+
+    </article>
+
+    {% include 'include/footer.html' %}
+
+</body>
+</html>
