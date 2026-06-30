@@ -101,6 +101,7 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n[경고] ESP32-CAM 연결에 실패했습니다. (에러: {e})")
         print("캠 연결 없이 웹 서버(Flask)를 실행합니다.\n")
+        
 
     # 카메라 연결 성공/실패 여부와 상관없이 Flask 서버 정상 구동
     app.run(host="0.0.0.0", port=5000, debug=False, threaded=True)

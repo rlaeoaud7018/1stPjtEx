@@ -8,7 +8,7 @@ camera      = None
 camera_lock = threading.Lock()
 
 # ── ESP32-CAM 스트리밍 주소 (현장 IP로 수정 필요) ──────
-ESP32_STREAM_URL = "http://192.168.137.67:81/stream"
+ESP32_STREAM_URL = "http://192.168.137.148:81/stream"
 
 # ── YOLO 모델 (best.pt 준비 후 주석 해제) ───────────────
 # from ultralytics import YOLO
