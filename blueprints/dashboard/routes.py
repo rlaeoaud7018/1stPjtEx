@@ -3,6 +3,7 @@ from ai.camera_manager import get_frame
 from utils.json_manager import load_fire_logs, save_confirm_log
 from datetime import datetime, timedelta
 import cv2
+import requests
 
 dashboard_bp = Blueprint("dashboard", __name__, url_prefix="/dashboard")
 
@@ -158,8 +159,21 @@ def api_send_sms():
 
 @dashboard_bp.route("/api/send_discord", methods=["POST"])
 def api_send_discord():
-    log_id = request.json.get("log_id")
-    # 실제 Discord 봇 연결 예정
-    return jsonify({"success": True, "message": f"Discord 전송 완료 (Log #{log_id})"})
+    WEBHOOK_URL = "https://discordapp.com/api/webhooks/1521402162247110708/dosKCCC0mVLCe0mbeVTCExC5W7HxyZaP8nEv8qAPNTNXbmIgGUQdKpBaruQ_Ig5b08Wl"
 
+    data = request.get_json()
+    log_id = data.get("log_id")
 
+<<<<<<< HEAD
+=======
+    all_logs = load_fire_logs()
+    target_log = next((l for l in all_logs if l.get("id") == log_id), None)
+
+    if not target_log:
+        return jsonify({"success": False, "message": "로그 데이터를 찾을 수 없습니다."}), 404
+
+    message = f"------드론 탐지 알림------\n- 드론번호:{target_log.get('drone_id')}\n- 위치: {target_log.get('location')}\n- 유형: {target_log.get('type')}\n- 신뢰도: {target_log.get('confidence')}"
+    response = requests.post(WEBHOOK_URL, json={"content": message})
+    
+    return jsonify({"success": True, "message": f"Discord 전송 완료 (Log #{response.status_code})"})
+>>>>>>> aa57690a8425d99e3344e048e79f22fa0b0cdd47
