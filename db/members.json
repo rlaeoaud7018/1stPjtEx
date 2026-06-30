@@ -3,7 +3,7 @@
         "pw": "admin1234",
         "name": "시스템 관리자",
         "email": "admin@firecontrol.kr",
-        "phone": "010-0000-0000",
+        "phone": "010-1234-5678",
         "role": "admin",
         "department": "관제 센터",
         "district": "전체",
@@ -107,6 +107,14 @@
         "role": "user",
         "department": "대덕구 소방서",
         "district": "대덕구",
+        "approved": true
+    },
+    "qwer": {
+        "pw": "1234",
+        "name": "qwer",
+        "email": "asdfas",
+        "phone": "f123123",
+        "role": "user",
         "approved": true
     }
 }
