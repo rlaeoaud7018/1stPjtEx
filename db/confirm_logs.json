@@ -1,0 +1,52 @@
+[
+    {
+        "action": "확인",
+        "confirmed_at": "2026-06-30 17:29:30",
+        "drone_id": "DRONE_02",
+        "fire_type": "화재",
+        "location": "서구 구봉산",
+        "fire_time": "2026-06-23 22:47",
+        "confirmed_by": "시스템 관리자",
+        "id": 1
+    },
+    {
+        "action": "확인",
+        "confirmed_at": "2026-06-30 17:29:36",
+        "drone_id": "DRONE_02",
+        "fire_type": "연기",
+        "location": "중구 보문산",
+        "fire_time": "2026-06-25 12:06",
+        "confirmed_by": "시스템 관리자",
+        "id": 2
+    },
+    {
+        "action": "확인",
+        "confirmed_at": "2026-06-30 17:29:40",
+        "drone_id": "DRONE_01",
+        "fire_type": "화재",
+        "location": "대덕구 계족산",
+        "fire_time": "2026-06-25 15:56",
+        "confirmed_by": "시스템 관리자",
+        "id": 3
+    },
+    {
+        "action": "확인",
+        "confirmed_at": "2026-06-30 17:29:44",
+        "drone_id": "DRONE_03",
+        "fire_type": "연기",
+        "location": "유성구 매봉산",
+        "fire_time": "2026-06-25 16:13",
+        "confirmed_by": "시스템 관리자",
+        "id": 4
+    },
+    {
+        "action": "확인",
+        "confirmed_at": "2026-06-30 17:30:51",
+        "drone_id": "DRONE_03",
+        "fire_type": "연기",
+        "location": "유성구 매봉산",
+        "fire_time": "2026-06-25 16:13",
+        "confirmed_by": "시스템 관리자",
+        "id": 5
+    }
+]

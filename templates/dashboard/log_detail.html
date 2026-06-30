@@ -73,10 +73,10 @@
 
       <!-- 액션 버튼 -->
       <div class="detail-actions" id="detail-actions">
-        <button class="btn btn-secondary" id="discord-btn" onclick="sendDiscord({{ log.id }})">
+        <button class="btn btn-secondary" id="discord-btn" onclick="sendDiscord(Number('{{ log.id }}'))">
           Discord 전송
         </button>
-        <button class="btn btn-primary" id="sms-btn" onclick="sendSms({{ log.id }})">
+        <button class="btn btn-primary" id="sms-btn" onclick="sendSms(Number('{{ log.id }}'))">
           SMS 전송
         </button>
         <button class="btn btn-secondary" id="back-btn" onclick="history.back()">

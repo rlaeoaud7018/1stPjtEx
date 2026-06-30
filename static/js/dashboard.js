@@ -1,92 +1,38 @@
 // dashboard.js — 실시간 관제 화면
 
 (function () {
-  const POLL_MS     = 2000;   // 폴링 주기 (2초)
-  const ALERT_COOLDOWN_MS = 30000; // 경보 반복 방지 (30초)
+  const POLL_MS = 2000;
 
-  const days = ['일', '월', '화', '수', '목', '금', '토'];
-  let   lastAlertId   = null;
-  let   alertCooldown = false;
-  let   sirenPlaying  = false;
+  // ── 확인 이력 (localStorage 기반, 새로고침 후에도 유지) ─
+  const LS_KEY = 'dronefire_confirmed_v1';
+  const confirmedLogs = (function () {
+    try { return new Set(JSON.parse(localStorage.getItem(LS_KEY) || '[]')); }
+    catch { return new Set(); }
+  })();
+
+  function persistConfirm(rowKey) {
+    confirmedLogs.add(rowKey);
+    try { localStorage.setItem(LS_KEY, JSON.stringify([...confirmedLogs])); } catch { }
+  }
 
   // ── 시계 ────────────────────────────────────────────────
   function padZ(n) { return String(n).padStart(2, '0'); }
 
   function updateClock() {
-    const now   = new Date();
+    const now = new Date();
     const dateEl = document.getElementById('mon-date');
     const timeEl = document.getElementById('mon-time');
     if (!dateEl || !timeEl) return;
-
-    const dateStr = `${now.getFullYear()}.${padZ(now.getMonth()+1)}.${padZ(now.getDate())}`;
-    const timeStr = `${padZ(now.getHours())}:${padZ(now.getMinutes())}`;
-    const ampm    = now.getHours() < 12 ? 'AM' : 'PM';
-    dateEl.textContent = dateStr;
-    timeEl.textContent = `${timeStr} ${ampm}`;
-  }
-
-  // ── 사이렌 ──────────────────────────────────────────────
-  function playSiren() {
-    const audio = document.getElementById('siren-audio');
-    if (!audio || sirenPlaying) return;
-    audio.play().then(() => { sirenPlaying = true; }).catch(() => {});
-  }
-
-  function stopSiren() {
-    const audio = document.getElementById('siren-audio');
-    if (!audio) return;
-    audio.pause();
-    audio.currentTime = 0;
-    sirenPlaying = false;
-  }
-
-  // ── 화재 경보 모달 ───────────────────────────────────────
-  function showFireModal(log) {
-    document.getElementById('alert-drone').textContent      = log.drone_id || '-';
-    document.getElementById('alert-location').textContent   = log.location || '-';
-    document.getElementById('alert-time').textContent       = log.time || '-';
-    document.getElementById('alert-confidence').textContent = log.confidence ? `${(log.confidence * 100).toFixed(0)}%` : '-';
-
-    document.getElementById('fire-modal-overlay').classList.remove('hidden');
-    document.getElementById('screen-danger-border').classList.add('active');
-    playSiren();
-  }
-
-  window.closeFireModal = function () {
-    document.getElementById('fire-modal-overlay').classList.add('hidden');
-    document.getElementById('screen-danger-border').classList.remove('active');
-    stopSiren();
-    // 쿨다운
-    alertCooldown = true;
-    setTimeout(() => { alertCooldown = false; }, ALERT_COOLDOWN_MS);
-  };
-
-  window.startResponse = function () {
-    closeFireModal();
-    alert('대응을 시작합니다. 관할 소방서에 연락하세요.');
-  };
-
-  // ── 최신 경보 폴링 ──────────────────────────────────────
-  async function pollLatestAlert() {
-    if (alertCooldown) return;
-    try {
-      const res  = await fetch('/dashboard/api/latest_alert');
-      const data = await res.json();
-      if (data.alert && data.log) {
-        const logId = data.log.id;
-        if (logId !== lastAlertId) {
-          lastAlertId = logId;
-          showFireModal(data.log);
-        }
-      }
-    } catch (e) { /* 연결 불안정 무시 */ }
+    const ampm = now.getHours() < 12 ? 'AM' : 'PM';
+    dateEl.textContent = `${now.getFullYear()}.${padZ(now.getMonth() + 1)}.${padZ(now.getDate())}`;
+    timeEl.textContent = `${padZ(now.getHours())}:${padZ(now.getMinutes())} ${ampm}`;
   }
 
   // ── 최근 로그 폴링 ──────────────────────────────────────
   async function pollRecentLogs() {
     try {
-      const res   = await fetch('/dashboard/api/recent_logs');
-      const logs  = await res.json();
+      const res = await fetch('/dashboard/api/recent_logs');
+      const logs = await res.json();
       renderRecentLogs(logs);
     } catch (e) { /* ignore */ }
   }
@@ -102,31 +48,112 @@
 
     let html = '';
     logs.forEach((log, idx) => {
+      const rowKey = `${log.drone_id}_${log.time}`;
       const typeBadge = log.type === '화재'
         ? `<span class="badge badge-fire">${log.type}</span>`
         : `<span class="badge badge-smoke">${log.type}</span>`;
-      const statusBadge = log.status === '대응중'
-        ? `<span class="badge badge-active">${log.status}</span>`
-        : `<span class="badge badge-ok">${log.status}</span>`;
+
+      const isConfirmed = confirmedLogs.has(rowKey);
+      const sirenCell = `<button class="siren-btn${isConfirmed ? ' confirmed' : ''}" onclick="openSirenModal(this)" data-row-key="${rowKey}" data-drone-id="${log.drone_id || ''}" data-location="${(log.location || '').replace(/"/g, '&quot;')}" data-log-time="${log.time || ''}" data-type="${log.type || ''}" title="${isConfirmed ? '재확인' : '클릭하여 로그 확인'}">🚨</button>`;
 
       html += `<tr>
         <td>${idx + 1}</td>
-        <td><span style="font-family:var(--font-en); font-weight:600;">${log.drone_id}</span></td>
+        <td><span style="font-family:var(--font-en);font-weight:600;">${log.drone_id}</span></td>
         <td>${typeBadge}</td>
-        <td style="color:var(--text-muted); font-size:0.74rem;">${log.location}</td>
-        <td style="font-family:var(--font-en); font-size:0.74rem;">${log.time}</td>
-        <td>${statusBadge}</td>
+        <td style="color:var(--text-muted);font-size:0.74rem;">${log.location}</td>
+        <td style="font-family:var(--font-en);font-size:0.74rem;">${log.time}</td>
+        <td>${sirenCell}</td>
       </tr>`;
     });
     tbody.innerHTML = html;
   }
 
+  // ── 사이렌 버튼 클릭 핸들러 ─────────────────────────────
+  // confirmed 상태여도 팝업은 열림 (점멸만 안 할 뿐)
+  window.openSirenModal = function (btn) {
+    if (!btn) return;
+    const d = btn.dataset;
+    openLogModal(d.rowKey, d.droneId, d.location, d.logTime, d.type);
+  };
+
+  // ── 로그 상세 팝업 열기 ──────────────────────────────────
+  function openLogModal(rowKey, droneId, location, time, type) {
+    const overlay = document.getElementById('log-modal-overlay');
+    if (!overlay) return;
+    const alertText = document.getElementById('log-modal-alert-text');
+    if (alertText) alertText.textContent = (type === '연기') ? '연기가 감지되었습니다!' : '산불이 감지되었습니다!';
+    document.getElementById('log-modal-drone-id').textContent = droneId || '-';
+    document.getElementById('log-modal-type').textContent = type || '-';
+    document.getElementById('log-modal-location').textContent = location || '-';
+    document.getElementById('log-modal-time').textContent = time || '-';
+    const img = document.getElementById('log-modal-feed-img');
+    if (img) img.src = '/dashboard/video_feed?t=' + Date.now();
+    overlay.dataset.rowKey   = rowKey   || '';
+    overlay.dataset.droneId  = droneId  || '';
+    overlay.dataset.location = location || '';
+    overlay.dataset.fireTime = time     || '';
+    overlay.dataset.fireType = type     || '';
+    overlay.classList.remove('hidden');
+  }
+  window.openLogModal = openLogModal;
+
+  // ── 로그 팝업 — 확인 ────────────────────────────────────
+  window.confirmLogModal = function () {
+    const overlay = document.getElementById('log-modal-overlay');
+    if (!overlay) return;
+    const od = overlay.dataset;
+    if (od.rowKey) {
+      persistConfirm(od.rowKey);
+      const btn = document.querySelector(`[data-row-key="${od.rowKey}"]`);
+      if (btn) { btn.classList.add('confirmed'); btn.title = '재확인'; }
+    }
+    fetch('/dashboard/api/confirm_log', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action:    '확인',
+        drone_id:  od.droneId,
+        location:  od.location,
+        fire_time: od.fireTime,
+        fire_type: od.fireType,
+      }),
+    }).catch(() => {});
+    overlay.classList.add('hidden');
+    const img = document.getElementById('log-modal-feed-img');
+    if (img) img.src = '';
+  };
+
+  // ── 로그 팝업 — 알림 발송 ───────────────────────────────
+  window.sendAlertModal = function () {
+    const overlay = document.getElementById('log-modal-overlay');
+    if (!overlay) return;
+    const od = overlay.dataset;
+    if (od.rowKey) {
+      persistConfirm(od.rowKey);
+      const btn = document.querySelector(`[data-row-key="${od.rowKey}"]`);
+      if (btn) { btn.classList.add('confirmed'); btn.title = '재확인'; }
+    }
+    fetch('/dashboard/api/confirm_log', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action:    '알림발송',
+        drone_id:  od.droneId,
+        location:  od.location,
+        fire_time: od.fireTime,
+        fire_type: od.fireType,
+      }),
+    }).catch(() => {});
+    overlay.classList.add('hidden');
+    const img = document.getElementById('log-modal-feed-img');
+    if (img) img.src = '';
+    alert('알림이 발송되었습니다.');
+  };
+
   // ── 초기화 ──────────────────────────────────────────────
   updateClock();
   setInterval(updateClock, 1000);
   pollRecentLogs();
-  pollLatestAlert();
-  setInterval(pollRecentLogs,    POLL_MS);
-  setInterval(pollLatestAlert,   POLL_MS);
+  setInterval(pollRecentLogs, POLL_MS);
 
 })();

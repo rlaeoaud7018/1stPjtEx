@@ -2,10 +2,11 @@ import json
 import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-MEMBER_FILE   = os.path.join(BASE_DIR, "db", "members.json")
-FIRE_LOG_FILE = os.path.join(BASE_DIR, "db", "fire_logs.json")
-SMS_LOG_FILE  = os.path.join(BASE_DIR, "db", "sms_logs.json")
-NOTICE_FILE   = os.path.join(BASE_DIR, "db", "notices.json")
+MEMBER_FILE       = os.path.join(BASE_DIR, "db", "members.json")
+FIRE_LOG_FILE     = os.path.join(BASE_DIR, "db", "fire_logs.json")
+SMS_LOG_FILE      = os.path.join(BASE_DIR, "db", "sms_logs.json")
+NOTICE_FILE       = os.path.join(BASE_DIR, "db", "notices.json")
+CONFIRM_LOG_FILE  = os.path.join(BASE_DIR, "db", "confirm_logs.json")
 
 # ── Members ──────────────────────────────────────
 def load_members():
@@ -103,3 +104,28 @@ def get_next_notice_id():
     if not notices:
         return 1
     return max(n.get("id", 0) for n in notices) + 1
+
+# ── Confirm Logs (사이렌 확인 이력) ──────────────────
+def load_confirm_logs():
+    """로그 확인 이력 불러오기"""
+    try:
+        if not os.path.exists(CONFIRM_LOG_FILE):
+            return []
+        with open(CONFIRM_LOG_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception as e:
+        print("Error loading confirm logs:", e)
+        return []
+
+def save_confirm_log(entry):
+    """로그 확인 이력 저장 (하나씩 추가)"""
+    try:
+        logs = load_confirm_logs()
+        # 자동 ID 부여
+        entry["id"] = max((l.get("id", 0) for l in logs), default=0) + 1
+        logs.append(entry)
+        os.makedirs(os.path.dirname(CONFIRM_LOG_FILE), exist_ok=True)
+        with open(CONFIRM_LOG_FILE, "w", encoding="utf-8") as f:
+            json.dump(logs, f, ensure_ascii=False, indent=4)
+    except Exception as e:
+        print("Error saving confirm log:", e)

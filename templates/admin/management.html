@@ -48,102 +48,15 @@
       margin-left: 10px;
     }
 
-    /* ── 2분할 본체 ─────────────────────────────────────── */
+    /* ── 본체 ────────────────────────────────────────────── */
     .mgmt-body {
-      display: grid;
-      grid-template-columns: 420px 1fr;
       flex: 1;
       min-height: 0;
-    }
-
-    /* ── 좌: 사용자 관리 ──────────────────────────────── */
-    .mgmt-left {
-      border-right: 1px solid var(--border-dim);
       display: flex;
       flex-direction: column;
-      overflow: hidden;
-      background: var(--bg-panel);
     }
 
-    .mgmt-section-header {
-      padding: 12px 20px;
-      border-bottom: 1px solid var(--border-dim);
-      background: rgba(255, 255, 255, 0.02);
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: var(--orange-main);
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      flex-shrink: 0;
-    }
-
-    .mgmt-left-body {
-      flex: 1;
-      overflow-y: auto;
-      padding: 0;
-    }
-
-    /* 구별 그룹 */
-    .district-group {
-      border-bottom: 1px solid var(--border-dim);
-    }
-
-    .district-group-title {
-      padding: 8px 20px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      background: rgba(255, 255, 255, 0.01);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .district-badge {
-      display: inline-flex;
-      align-items: center;
-      padding: 1px 7px;
-      border-radius: 10px;
-      font-size: 0.65rem;
-      font-weight: 700;
-      background: rgba(255, 90, 0, 0.12);
-      color: var(--orange-main);
-      border: 1px solid rgba(255, 90, 0, 0.25);
-    }
-
-    .district-member-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    .district-member-table th {
-      padding: 6px 16px;
-      font-size: 0.68rem;
-      color: var(--text-muted);
-      font-weight: 500;
-      text-align: left;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-    }
-
-    .district-member-table td {
-      padding: 7px 16px;
-      font-size: 0.76rem;
-      color: var(--text-primary);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-      vertical-align: middle;
-    }
-
-    .district-member-table tr:last-child td {
-      border-bottom: none;
-    }
-
-    .district-member-table tr:hover td {
-      background: rgba(255, 255, 255, 0.02);
-    }
-
-    /* ── 우: 발송 이력 ─────────────────────────────────── */
+    /* ── 발송 이력 ────────────────────────────────────── */
     .mgmt-right {
       display: flex;
       flex-direction: column;
@@ -281,6 +194,39 @@
       font-size: 2.2rem;
       margin-bottom: 12px;
     }
+
+    /* ── 섹션 구분선 (발송이력 / 확인이력 나누는 선) ── */
+    .alarm-section-title {
+      padding: 10px 16px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.025);
+      border-top: 1px solid var(--border-dim);
+      border-bottom: 1px solid var(--border-dim);
+      letter-spacing: 0.05em;
+    }
+
+    /* ── 확인 이력 채널 뱃지 ────────────────────────── */
+    .channel-confirm {
+      background: rgba(0, 200, 120, 0.12);
+      color: var(--connected);
+      border: 1px solid rgba(0, 200, 120, 0.3);
+      padding: 2px 7px;
+      border-radius: 10px;
+      font-size: 0.65rem;
+      font-weight: 700;
+    }
+
+    .channel-alert {
+      background: rgba(255, 90, 0, 0.1);
+      color: var(--orange-main);
+      border: 1px solid rgba(255, 90, 0, 0.3);
+      padding: 2px 7px;
+      border-radius: 10px;
+      font-size: 0.65rem;
+      font-weight: 700;
+    }
   </style>
 </head>
 
@@ -294,78 +240,25 @@
       <span class="mgmt-header-icon">🛡️</span>
       <div>
         <span class="mgmt-title">관리자 메뉴</span>
-        <span class="mgmt-title-sub">사용자 관리 / SMS·Discord 발송 이력</span>
+        <span class="mgmt-title-sub">SMS·Discord 발송 이력</span>
       </div>
     </div>
 
-    <!-- 본체 2분할 -->
+    <!-- 본체 -->
     <div class="mgmt-body" id="mgmt-body">
 
-      <!-- ── 좌: 사용자 관리 ── -->
-      <div class="mgmt-left" id="mgmt-left">
-        <div class="mgmt-section-header">👥 사용자 관리 (구별)</div>
-        <div class="mgmt-left-body" id="mgmt-left-body">
-
-          {% if ordered_districts %}
-          {% for district, members_list in ordered_districts %}
-          <div class="district-group" id="district-{{ loop.index }}">
-            <div class="district-group-title">
-              📍 {{ district }}
-              <span class="district-badge">{{ members_list | length }}명</span>
-            </div>
-            <table class="district-member-table">
-              <thead>
-                <tr>
-                  <th>이름</th>
-                  <th>소속</th>
-                  <th>연락처</th>
-                  <th>상태</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for m in members_list %}
-                <tr>
-                  <td>
-                    <span style="font-weight:600;">{{ m.name }}</span>
-                    {% if m.role == 'admin' %}
-                    <span class="badge badge-active" style="font-size:0.6rem; margin-left:4px;">관리자</span>
-                    {% endif %}
-                  </td>
-                  <td style="color:var(--text-muted); font-size:0.72rem;">{{ m.department or '-' }}</td>
-                  <td style="font-family:var(--font-en); font-size:0.7rem; color:var(--text-muted);">{{ m.phone or '-'
-                    }}</td>
-                  <td>
-                    {% if m.approved %}
-                    <span class="badge badge-ok" style="font-size:0.62rem;">승인</span>
-                    {% else %}
-                    <span class="badge badge-smoke" style="font-size:0.62rem;">대기</span>
-                    {% endif %}
-                  </td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-          {% endfor %}
-          {% else %}
-          <div class="empty-state">
-            <div class="empty-icon">👤</div>
-            <div>등록된 사용자가 없습니다.</div>
-          </div>
-          {% endif %}
-
-        </div>
-      </div><!-- /mgmt-left -->
-
-      <!-- ── 우: 발송 이력 ── -->
+      <!-- ── 발송 이력 ── -->
       <div class="mgmt-right" id="mgmt-right">
         <div class="mgmt-right-header">
-          <span>📨 SMS / Discord 발송 이력</span>
+          <span>📋 알람 이력</span>
           <span style="font-size:0.72rem; font-weight:400; color:var(--text-muted); text-transform:none;">
             ※ 확인 버튼으로 수신 확인 여부를 기록할 수 있습니다
           </span>
         </div>
         <div class="mgmt-right-body" id="mgmt-right-body">
+
+          <!-- ══ 섹션 1: 발송 이력 (SMS / Discord) ══════════════ -->
+          <div class="alarm-section-title" style="border-top:none;">📨 발송 이력 (SMS · Discord)</div>
 
           {% if sms_logs %}
           <table class="sms-table" id="sms-log-table">
@@ -398,10 +291,8 @@
                 </td>
                 <td style="font-weight:600; font-size:0.74rem;">
                   {{ log.recipient_name or '-' }}
-                  {% if log.recipient_phone and '@' not in log.recipient_phone and 'Discord' not in log.recipient_phone
-                  %}
-                  <div style="font-size:0.66rem; color:var(--text-muted); font-weight:400;">{{ log.recipient_phone }}
-                  </div>
+                  {% if log.recipient_phone and '@' not in log.recipient_phone and 'Discord' not in log.recipient_phone %}
+                  <div style="font-size:0.66rem; color:var(--text-muted); font-weight:400;">{{ log.recipient_phone }}</div>
                   {% endif %}
                 </td>
                 <td>
@@ -427,12 +318,71 @@
               {% endfor %}
             </tbody>
           </table>
-
           {% else %}
           <div class="empty-state">
             <div class="empty-icon">📭</div>
             <div style="font-size:0.95rem; font-weight:600; margin-bottom:8px;">발송 이력이 없습니다</div>
             <div style="font-size:0.8rem;">SMS 또는 Discord 발송 후 이 화면에 기록이 나타납니다.</div>
+          </div>
+          {% endif %}
+
+          <!-- ══ 섹션 2: 로그 확인 이력 ══════════════════════════ -->
+          <div class="alarm-section-title">✅ 로그 확인 이력</div>
+
+          {% if confirm_logs %}
+          <table class="sms-table" id="confirm-log-table">
+            <thead>
+              <tr>
+                <th>유형</th>
+                <th>확인 일시</th>
+                <th>드론 ID</th>
+                <th>종류</th>
+                <th>위치</th>
+                <th>발생 시간</th>
+                <th>확인자</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for log in confirm_logs %}
+              <tr>
+                <td>
+                  {% if log.action == '알림발송' %}
+                  <span class="channel-alert">알림발송</span>
+                  {% else %}
+                  <span class="channel-confirm">확인</span>
+                  {% endif %}
+                </td>
+                <td style="font-family:var(--font-en); font-size:0.72rem; white-space:nowrap;">
+                  {{ log.confirmed_at or '-' }}
+                </td>
+                <td style="font-family:var(--font-en); font-weight:600; font-size:0.74rem;">
+                  {{ log.drone_id or '-' }}
+                </td>
+                <td>
+                  {% if log.fire_type == '화재' %}
+                  <span class="badge badge-fire" style="font-size:0.62rem;">화재</span>
+                  {% elif log.fire_type == '연기' %}
+                  <span class="badge badge-smoke" style="font-size:0.62rem;">연기</span>
+                  {% else %}
+                  <span style="color:var(--text-dim);">-</span>
+                  {% endif %}
+                </td>
+                <td style="font-size:0.72rem; color:var(--text-muted);">{{ log.location or '-' }}</td>
+                <td style="font-family:var(--font-en); font-size:0.72rem; color:var(--text-muted);">
+                  {{ log.fire_time or '-' }}
+                </td>
+                <td style="font-weight:600; font-size:0.74rem;">{{ log.confirmed_by or '-' }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          <div class="empty-state" style="padding:32px 20px;">
+            <div class="empty-icon">📋</div>
+            <div style="font-size:0.9rem; font-weight:600; margin-bottom:6px;">확인 이력이 없습니다</div>
+            <div style="font-size:0.76rem;">
+              실시간 관제 화면 → 사이렌 🚨 클릭 → 확인 또는 알림 발송 시 이 목록에 기록됩니다.
+            </div>
           </div>
           {% endif %}
 

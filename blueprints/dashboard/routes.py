@@ -1,6 +1,6 @@
-from flask import Blueprint, render_template, Response, jsonify, session, redirect, url_for
+from flask import Blueprint, render_template, Response, jsonify, session, redirect, url_for, request
 from ai.camera_manager import get_frame
-from utils.json_manager import load_fire_logs
+from utils.json_manager import load_fire_logs, save_confirm_log
 from datetime import datetime, timedelta
 import cv2
 
@@ -125,6 +125,29 @@ def api_stats():
     })
 
 
+# ── 로그 확인 이력 저장 ──────────────────────────────
+@dashboard_bp.route("/api/confirm_log", methods=["POST"])
+def api_confirm_log():
+    """
+    실시간 관제 화면에서 사이렌 버튼 클릭 → '확인' 또는 '알림 발송' 시 호출.
+    확인한 사람과 해당 화재 로그 정보를 confirm_logs.json에 저장.
+    """
+    data = request.get_json() or {}
+
+    entry = {
+        "action":       data.get("action", "확인"),        # "확인" 또는 "알림발송"
+        "confirmed_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "drone_id":     data.get("drone_id",  "-"),
+        "fire_type":    data.get("fire_type", "-"),        # "화재" 또는 "연기"
+        "location":     data.get("location",  "-"),
+        "fire_time":    data.get("fire_time", "-"),        # 화재 발생 시각
+        "confirmed_by": session.get("signinedMemberName", "알 수 없음"),
+    }
+
+    save_confirm_log(entry)
+    return jsonify({"success": True})
+
+
 # ── SMS / Discord 전송 뼈대 ──────────────────────────
 @dashboard_bp.route("/api/send_sms", methods=["POST"])
 def api_send_sms():
@@ -140,4 +163,3 @@ def api_send_discord():
     return jsonify({"success": True, "message": f"Discord 전송 완료 (Log #{log_id})"})
 
 
-from flask import request

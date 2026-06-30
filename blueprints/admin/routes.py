@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, session, url_for, jsonify
 from utils.json_manager import (
     load_members, save_members, load_notices, save_notices,
-    get_next_notice_id, load_sms_logs, save_sms_log
+    get_next_notice_id, load_sms_logs, save_sms_log, load_confirm_logs
 )
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
@@ -42,10 +42,15 @@ def management():
     sms_logs = load_sms_logs()
     sms_logs_sorted = sorted(sms_logs, key=lambda x: x.get("sent_at", ""), reverse=True)
 
+    # 로그 확인 이력
+    confirm_logs = load_confirm_logs()
+    confirm_logs_sorted = sorted(confirm_logs, key=lambda x: x.get("confirmed_at", ""), reverse=True)
+
     return render_template(
         "admin/management.html",
         ordered_districts=ordered_districts,
         sms_logs=sms_logs_sorted,
+        confirm_logs=confirm_logs_sorted,
     )
 
 
