@@ -129,32 +129,61 @@
         {% for drone in [
         {'num': 1, 'id': 'DR-01', 'battery': 78},
         {'num': 2, 'id': 'DR-02', 'battery': 65},
-        {'num': 3, 'id': 'DR-03', 'battery': 82},
-        {'num': 4, 'id': 'DR-04', 'battery': 81}
+        {'num': 3, 'id': 'DR-03', 'battery': 0},
+        {'num': 4, 'id': 'DR-04', 'battery': 0}
         ] %}
         <div class="drone-card hud-card hud-corner-full" id="drone-card-{{ drone.num }}">
-          <!-- HUD 코너 브라켓 (네 모서리) -->
-          <span class="hud-tl"></span><span class="hud-tr"></span>
-          <span class="hud-bl"></span><span class="hud-br"></span>
-          <div class="drone-card-header">
-            <span class="drone-label">DRONE {{ drone.num }}</span>
-            <div class="live-badge">
-              <div class="live-dot"></div> LIVE
+
+            <!-- header -->
+              <div class="drone-card-header">
+                  <span class="drone-label">DRONE {{ drone.num }}</span>
+                  <div class="live-badge">
+                      <div class="live-dot"></div> LIVE
+                  </div>
+              </div>
+
+            <!-- 영상 -->
+            <div class="drone-feed scanline-moving"
+                style="cursor:pointer;"
+                onclick="openFeedFullscreen('{{ drone.num }}', '{{ drone.battery }}')"
+                title="클릭하면 전체화면으로 확대됩니다">
+
+                {% if drone.num <= 2 %}
+                <img
+                    src="{{ url_for('dashboard.video_feed', camera_num=drone.num) }}"
+                    alt="DRONE {{ drone.num }}"
+                    id="drone-feed-{{ drone.num }}"
+                    style="width:100%; height:100%; object-fit:cover;">
+                {% else %}
+                <div style="
+                    display:flex;
+                    justify-content:center;
+                    align-items:center;
+                    width:100%;
+                    height:100%;
+                    background:#111;
+                    color:#00eaff;
+                    font-size:18px;">
+                    NO SIGNAL
+                </div>
+                {% endif %}
+
+                <!-- 확대 아이콘 -->
+                <div class="feed-expand-hint">⛶</div>
             </div>
-          </div>
-          <div class="drone-feed scanline-moving" style="cursor:pointer;"
-            onclick="openFeedFullscreen('{{ drone.num }}', '{{ drone.battery }}')" title="클릭하면 전체화면으로 확대됩니다">
-            <img src="/dashboard/video_feed" alt="DRONE {{ drone.num }} 피드" id="drone-feed-{{ drone.num }}"
-              style="width:100%; height:100%; object-fit:cover;">
-            <!-- 확대 힌트 아이콘 -->
-            <div class="feed-expand-hint">⛶</div>
-          </div>
-          <div class="drone-card-footer">
-            <span class="drone-battery">배터리 <span>{{ drone.battery }}%</span></span>
-            <div class="drone-status">
-              <div class="status-dot"></div> 연결 중
+
+                <!-- footer -->
+                <div class="drone-card-footer">
+                <span class="drone-battery">
+                    배터리 <span>{{ drone.battery }}%</span>
+                </span>
+
+                <div class="drone-status">
+                    <div class="status-dot"></div>
+                    연결 중
+                </div>
             </div>
-          </div>
+
         </div>
         {% endfor %}
       </div>
@@ -307,10 +336,12 @@
       const img = document.getElementById('feed-fs-img');
       const label = document.getElementById('feed-fs-label');
       const bat = document.getElementById('feed-fs-battery');
-      // 입력캐시사를 막기 위해 스끜 재설정
-      img.src = '/dashboard/video_feed?t=' + Date.now();
+
+      img.src = `/dashboard/video_feed/${droneNum}?t=${Date.now()}`;
+
       label.textContent = 'DRONE ' + droneNum;
       bat.textContent = '배터리 ' + battery + '%';
+
       overlay.classList.remove('hidden');
       document.body.style.overflow = 'hidden';
     };
