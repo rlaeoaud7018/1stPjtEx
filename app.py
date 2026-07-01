@@ -92,7 +92,6 @@ def home():
         notices=notices,
     )
 
-
 if __name__ == "__main__":
     # 캠 연결 실패 시 에러를 터트리지 않고 넘어가도록 예외 처리
     try:

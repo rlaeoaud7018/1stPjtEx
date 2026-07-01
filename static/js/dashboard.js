@@ -77,25 +77,44 @@
   };
 
   // ── 로그 상세 팝업 열기 ──────────────────────────────────
-  function openLogModal(rowKey, droneId, location, time, type) {
+function openLogModal(rowKey, droneId, location, time, type) {
+
     const overlay = document.getElementById('log-modal-overlay');
     if (!overlay) return;
+
     const alertText = document.getElementById('log-modal-alert-text');
-    if (alertText) alertText.textContent = (type === '연기') ? '연기가 감지되었습니다!' : '산불이 감지되었습니다!';
+    if (alertText) {
+        alertText.textContent =
+            (type === '연기') ? '연기가 감지되었습니다!' : '산불이 감지되었습니다!';
+    }
+
     document.getElementById('log-modal-drone-id').textContent = droneId || '-';
     document.getElementById('log-modal-type').textContent = type || '-';
     document.getElementById('log-modal-location').textContent = location || '-';
     document.getElementById('log-modal-time').textContent = time || '-';
+
+    const droneMap = {
+        "DRONE_01": 1,
+        "DRONE_02": 2,
+        "DRONE_03": 3,
+        "DRONE_04": 4
+    };
+
+    const num = droneMap[droneId];
+
     const img = document.getElementById('log-modal-feed-img');
-    if (img) img.src = '/dashboard/video_feed?t=' + Date.now();
-    overlay.dataset.rowKey   = rowKey   || '';
-    overlay.dataset.droneId  = droneId  || '';
+    if (img && num) {
+        img.src = `/dashboard/video_feed/${num}?t=${Date.now()}`;
+    }
+
+    overlay.dataset.rowKey = rowKey || '';
+    overlay.dataset.droneId = droneId || '';
     overlay.dataset.location = location || '';
-    overlay.dataset.fireTime = time     || '';
-    overlay.dataset.fireType = type     || '';
+    overlay.dataset.fireTime = time || '';
+    overlay.dataset.fireType = type || '';
+
     overlay.classList.remove('hidden');
-  }
-  window.openLogModal = openLogModal;
+}
 
   // ── 로그 팝업 — 확인 ────────────────────────────────────
   window.confirmLogModal = function () {
@@ -124,31 +143,48 @@
   };
 
   // ── 로그 팝업 — 알림 발송 ───────────────────────────────
-  window.sendAlertModal = function () {
+window.sendAlertModal = function () {
     const overlay = document.getElementById('log-modal-overlay');
     if (!overlay) return;
+
     const od = overlay.dataset;
+
     if (od.rowKey) {
-      persistConfirm(od.rowKey);
-      const btn = document.querySelector(`[data-row-key="${od.rowKey}"]`);
-      if (btn) { btn.classList.add('confirmed'); btn.title = '재확인'; }
+        persistConfirm(od.rowKey);
+
+        const btn = document.querySelector(`[data-row-key="${od.rowKey}"]`);
+        if (btn) {
+            btn.classList.add('confirmed');
+            btn.title = '재확인';
+        }
     }
     fetch('/dashboard/api/confirm_log', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action:    '알림발송',
-        drone_id:  od.droneId,
-        location:  od.location,
-        fire_time: od.fireTime,
-        fire_type: od.fireType,
-      }),
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            log_id: od.rowKey,
+            action: '알림발송',
+            drone_id: od.droneId,
+            location: od.location,
+            fire_time: od.fireTime,
+            fire_type: od.fireType,
+        }),
     }).catch(() => {});
+    fetch('/dashboard/api/send_discord', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            log_id: od.rowKey
+        }),
+    }).catch(() => {});
+
     overlay.classList.add('hidden');
+
     const img = document.getElementById('log-modal-feed-img');
     if (img) img.src = '';
+
     alert('알림이 발송되었습니다.');
-  };
+};
 
   // ── 초기화 ──────────────────────────────────────────────
   updateClock();

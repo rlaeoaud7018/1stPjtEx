@@ -171,15 +171,22 @@ def api_send_discord():
     WEBHOOK_URL = "https://discordapp.com/api/webhooks/1521402162247110708/dosKCCC0mVLCe0mbeVTCExC5W7HxyZaP8nEv8qAPNTNXbmIgGUQdKpBaruQ_Ig5b08Wl"
 
     data = request.get_json()
-    log_id = data.get("log_id")
+    received_row_key = data.get("log_id") 
     all_logs = load_fire_logs()
-    target_log = next((l for l in all_logs if l.get("id") == log_id), None)
 
+    target_log = None
+    for log in all_logs:
+        log_key = f"{log.get('drone_id')}_{log.get('time')}"
+        if log_key == received_row_key:
+            target_log = log
+            break
+
+    print(f"DEBUG: 전체 로그 데이터 구조 확인: {all_logs}")
     if not target_log:
+        print(f"DEBUG: 일치하는 로그 없음. 검색 시도한 키: {received_row_key}")
         return jsonify({"success": False, "message": "로그 데이터를 찾을 수 없습니다."}), 404
 
     message = f"------드론 탐지 알림------\n- 위치: {target_log.get('location')}\n- 유형: {target_log.get('type')}"
     response = requests.post(WEBHOOK_URL, json={"content": message})
     
     return jsonify({"success": True, "message": f"Discord 전송 완료 (Log #{response.status_code})"})
-
