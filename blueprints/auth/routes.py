@@ -5,7 +5,6 @@ from datetime import datetime
 import random
 import smtplib
 
-
 auth_bp = Blueprint("auth", __name__, url_prefix="/member")
 
 
@@ -210,13 +209,19 @@ def id_find_confirm():
     if not session.get('is_email_verified'):
         return "<script>alert('이메일 인증이 필요합니다.'); history.back();</script>"
 
-    user_name = request.form.get('mName')
-    user_email = request.form.get('mMail')
+    user_name = request.form.get('mName', '').strip()
+    user_email = request.form.get('mMail', '').strip()
 
     if session.get('verified_email') != user_email:
         return "<script>alert('인증한 이메일과 입력한 이메일이 다릅니다.'); history.back();</script>"
 
-    found_id = "test_user_id" 
+     # 🛠️ [수정]: 실시간 JSON 기반 ID 찾기 로직 연동
+    members = load_members()
+    found_id = None
+    for mid, info in members.items():
+        if info.get("name") == user_name and info.get("email") == user_email:
+            found_id = mid
+            break 
 
     if found_id:
         return render_template('id_find_result.html', found_id=found_id)
@@ -229,14 +234,22 @@ def pw_find_confirm():
     if not session.get('is_email_verified'):
         return "<script>alert('이메일 인증이 필요합니다.'); history.back();</script>"
 
-    user_id = request.form.get('mId')
-    user_name = request.form.get('mName')
-    user_email = request.form.get('mMail')
+    user_id = request.form.get('mId', '').strip()
+    user_name = request.form.get('mName', '').strip()
+    user_email = request.form.get('mMail', '').strip()
 
     if session.get('verified_email') != user_email:
         return "<script>alert('인증한 이메일과 입력한 이메일이 다릅니다.'); history.back();</script>"
 
-    user_exists = True
+    # 🛠️ [수정]: 실시간 JSON 기반 계정 존재 여부 검증
+    members = load_members()
+    member_info = members.get(user_id)
+    
+    user_exists = (
+        member_info is not None and 
+        member_info.get("name") == user_name and 
+        member_info.get("email") == user_email
+    )
 
     if user_exists:
         return render_template('pw_reset_form.html', mId=user_id)

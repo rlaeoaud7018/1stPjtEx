@@ -144,7 +144,7 @@
             </div>
           </div>
           <div class="drone-feed scanline-moving" style="cursor:pointer;"
-            onclick="openFeedFullscreen({{ drone.num }}, '{{ drone.battery }}')" title="클릭하면 전체화면으로 확대됩니다">
+            onclick="openFeedFullscreen('{{ drone.num }}', '{{ drone.battery }}')" title="클릭하면 전체화면으로 확대됩니다">
             <img src="/dashboard/video_feed" alt="DRONE {{ drone.num }} 피드" id="drone-feed-{{ drone.num }}"
               style="width:100%; height:100%; object-fit:cover;">
             <!-- 확대 힌트 아이콘 -->

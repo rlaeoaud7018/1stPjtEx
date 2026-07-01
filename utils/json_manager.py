@@ -71,9 +71,9 @@ def load_sms_logs():
 
 def save_sms_log(entry):
     try:
+        os.makedirs(os.path.dirname(SMS_LOG_FILE), exist_ok=True)
         logs = load_sms_logs()
         logs.append(entry)
-        os.makedirs(os.path.dirname(SMS_LOG_FILE), exist_ok=True)
         with open(SMS_LOG_FILE, "w", encoding="utf-8") as f:
             json.dump(logs, f, ensure_ascii=False, indent=4)
     except Exception as e:

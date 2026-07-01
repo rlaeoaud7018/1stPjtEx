@@ -3,6 +3,8 @@ from utils.json_manager import (
     load_members, save_members, load_notices, save_notices,
     get_next_notice_id, load_sms_logs, save_sms_log
 )
+from datetime import datetime
+import json
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -56,15 +58,9 @@ def confirm_sms(log_id):
     if check:
         return jsonify({"error": "unauthorized"}), 403
 
-    from datetime import datetime
-    import os, json
-
-    sms_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "db", "sms_logs.json")
-    try:
-        with open(sms_file, "r", encoding="utf-8") as f:
-            logs = json.load(f)
-    except Exception:
-        logs = []
+    # 🛠️ [수정]: 직접 open하지 않고 json_manager의 공통 함수 및 파일 경로 참조 활용
+    logs = load_sms_logs()
+    target_log = None
 
     now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     for log in logs:
@@ -75,12 +71,24 @@ def confirm_sms(log_id):
             else:
                 log["confirmed"] = True
                 log["confirmed_at"] = now_str
+            target_log = log
             break
 
-    with open(sms_file, "w", encoding="utf-8") as f:
-        json.dump(logs, f, ensure_ascii=False, indent=4)
+    if not target_log:
+        return jsonify({"error": "Log not found"}), 404
 
-    return jsonify({"success": True, "confirmed": log.get("confirmed"), "confirmed_at": log.get("confirmed_at")})
+    # 데이터 통일성 유지 보관을 위해 전체 쓰기 작업 수행
+    try:
+        with open(SMS_LOG_FILE, "w", encoding="utf-8") as f:
+            json.dump(logs, f, ensure_ascii=False, indent=4)
+    except Exception as e:
+        return jsonify({"error": f"Failed to save log: {e}"}), 500
+
+    return jsonify({
+        "success": True, 
+        "confirmed": target_log.get("confirmed"), 
+        "confirmed_at": target_log.get("confirmed_at")
+    })
 
 
 @admin_bp.route("/members")
@@ -149,7 +157,7 @@ def write_notice():
         pinned  = request.form.get("pinned") == "on"
         notices = load_notices()
         notice_id = get_next_notice_id()
-        from datetime import datetime
+
         notices.append({
             "id":          notice_id,
             "title":       title,

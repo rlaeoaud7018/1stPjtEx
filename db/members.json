@@ -116,5 +116,13 @@
         "phone": "f123123",
         "role": "user",
         "approved": true
+    },
+    "soogyung": {
+        "pw": "1234",
+        "name": "우수경",
+        "email": "soogyung@gmail.com",
+        "phone": "010-3333-9999",
+        "role": "user",
+        "approved": true
     }
 }

@@ -1,14 +1,14 @@
 from flask import Blueprint, render_template, Response, jsonify, session, redirect, url_for
 from ai.camera_manager import get_frame
-from utils.json_manager import load_fire_logs
+from utils.json_manager import load_fire_logs, load_sms_logs
 from datetime import datetime, timedelta
 import cv2
+import time
 
 dashboard_bp = Blueprint("dashboard", __name__, url_prefix="/dashboard")
 
 
-def generate_frames():
-    import time
+def generate_frames():    
     while True:
         frame = get_frame()
         try:
@@ -45,12 +45,12 @@ def history():
 @dashboard_bp.route("/send_history")
 def send_history():
     """발송 이력 — 관리자 전용 (app.py check_auth에서 /admin/ 경로와 별도로 여기서 role 체크)"""
-    from flask import session as flask_session
-    if flask_session.get("signinedMemberRole") != "admin":
+    if session.get("signinedMemberRole") != "admin":
         return redirect(url_for("auth.signin_form"))
-    from utils.json_manager import load_sms_logs
+
     logs = load_sms_logs()
-    return render_template("dashboard/send_history.html", logs=logs)
+    logs_sorted = sorted(logs, key=lambda x: x.get("sent_at", ""), reverse=True)
+    return render_template("dashboard/send_history.html", logs=logs_sorted)
 
 
 @dashboard_bp.route("/log_detail/<int:log_id>")
@@ -84,8 +84,12 @@ def api_logs():
     end     = start + per_page
     paged   = logs[start:end]
 
-    return jsonify({"total": total, "page": page, "per_page": per_page, "logs": paged})
-
+    return jsonify({
+        "total": total, 
+        "page": page, 
+        "per_page": per_page, 
+        "logs": paged
+    })
 
 @dashboard_bp.route("/api/recent_logs")
 def api_recent_logs():
@@ -108,7 +112,7 @@ def api_latest_alert():
         if datetime.now() - log_time <= timedelta(seconds=7):
             return jsonify({"alert": True, "log": latest})
     except Exception:
-        pass
+        print("Alert 타임스탬프 파싱 오류:", e)
     return jsonify({"alert": False})
 
 
@@ -125,19 +129,19 @@ def api_stats():
     })
 
 
-# ── SMS / Discord 전송 뼈대 ──────────────────────────
+# ── 비상 전송 채널 연동 뼈대 (향후 웹훅 및 외부 API 적용) ──
+
 @dashboard_bp.route("/api/send_sms", methods=["POST"])
 def api_send_sms():
-    log_id = request.json.get("log_id")
-    # 실제 SMS 발송 로직 연결 예정
-    return jsonify({"success": True, "message": f"SMS 전송 완료 (Log #{log_id})"})
+    data = request.get_json() or {}
+    log_id = data.get("log_id")
+    # TODO: 알리고(Aligo) 또는 CoolSMS 또는 DISCORD 모듈 연동 구역
+    return jsonify({"success": True, "message": f"현장 대원 비상 SMS 발송 완료 (로그 코드 #{log_id})"})
 
 
 @dashboard_bp.route("/api/send_discord", methods=["POST"])
 def api_send_discord():
-    log_id = request.json.get("log_id")
-    # 실제 Discord 봇 연결 예정
-    return jsonify({"success": True, "message": f"Discord 전송 완료 (Log #{log_id})"})
-
-
-from flask import request
+    data = request.get_json() or {}
+    log_id = data.get("log_id")
+    # TODO: requests.post(DISCORD_WEBHOOK_URL, json=payload) 연동 구역
+    return jsonify({"success": True, "message": f"상황실 디스코드 원격 상황 전파 완료 (로그 코드 #{log_id})"})

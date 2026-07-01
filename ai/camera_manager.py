@@ -96,7 +96,7 @@ def save_fire_log_entry(detected_type, confidence, drone_id="DR-01", location="�
         "message":    f"{detected_type} 감지됨",
     })
     save_fire_logs(logs)
-    print(f"[{detected_type}] 로그 저장 완료 — {location}")
+    print(f"[{detected_type}] 로그 저장 완료 (정확도: {confidence:.2f}) — {location}")
 
 
 def get_frame():
@@ -118,7 +118,7 @@ def get_frame():
             results = model(frame, verbose=False)
             result  = results[0]
             is_fire_event = False
-            detected_type = None
+            final_detected_type = None
             max_conf      = 0.0
 
             for box in result.boxes:
@@ -126,9 +126,9 @@ def get_frame():
                 confidence = float(box.conf[0])
 
                 if class_id == 0:
-                    label_text, detected_type = "FIRE",  "화재"
+                    label_text, current_type = "FIRE",  "화재"
                 elif class_id == 1:
-                    label_text, detected_type = "SMOKE", "연기"
+                    label_text, current_type = "SMOKE", "연기"
                 else:
                     continue
 
@@ -136,16 +136,17 @@ def get_frame():
                     is_fire_event = True
                     if confidence > max_conf:
                         max_conf = confidence
+                        final_detected_type = current_type
                     x1, y1, x2, y2 = map(int, box.xyxy[0])
-                    clr = (0, 0, 255) if detected_type == "화재" else (0, 140, 180)
+                    clr = (0, 0, 255) if current_type == "화재" else (0, 140, 180)
                     cv2.rectangle(frame, (x1, y1), (x2, y2), clr, 2)
                     cv2.putText(frame, f"{label_text} {confidence:.0%}",
                                 (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.55, clr, 2)
 
-            if is_fire_event:
+            if is_fire_event and final_detected_type:
                 now = datetime.now()
                 if last_alert_time is None or now - last_alert_time > timedelta(seconds=5):
-                    save_fire_log_entry(detected_type, max_conf)
+                    save_fire_log_entry(final_detected_type, max_conf)
                     last_alert_time = now
 
         return frame
