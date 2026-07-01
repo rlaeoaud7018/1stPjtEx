@@ -182,3 +182,4 @@ def api_send_discord():
     response = requests.post(WEBHOOK_URL, json={"content": message})
     
     return jsonify({"success": True, "message": f"Discord 전송 완료 (Log #{response.status_code})"})
+

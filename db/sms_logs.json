@@ -32,8 +32,8 @@
         "recipient_name": "박반장",
         "recipient_phone": "010-2345-6789",
         "message": "[연기경보] 강원도 양양군 연기 감지. 신뢰도 90%. 현장 확인 요청.",
-        "confirmed": true,
-        "confirmed_at": "2026-07-01 09:17:45"
+        "confirmed": false,
+        "confirmed_at": null
     },
     {
         "id": 4,
@@ -44,8 +44,8 @@
         "recipient_name": "최소방",
         "recipient_phone": "010-3456-7890",
         "message": "[화재경보] 강원도 홍천군 화재 감지. 신뢰도 95%. 즉시 출동 요청.",
-        "confirmed": true,
-        "confirmed_at": "2024-05-20 14:29:45"
+        "confirmed": false,
+        "confirmed_at": null
     },
     {
         "id": 5,
@@ -69,7 +69,7 @@
         "recipient_phone": "010-4567-8901",
         "message": "[화재경보] 강원도 인제군 화재 감지. 신뢰도 96%. 즉시 출동 요청.",
         "confirmed": true,
-        "confirmed_at": "2026-07-01 09:17:48"
+        "confirmed_at": "2026-07-01 10:10:55"
     },
     {
         "id": 7,
