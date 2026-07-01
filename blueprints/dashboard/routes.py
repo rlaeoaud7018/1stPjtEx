@@ -68,13 +68,13 @@ def log_detail(log_id):
 def api_logs():
     """전체 로그 — 최신순, 필터 지원"""
     logs     = load_fire_logs()
-    drone_id = request.args.get("drone")
+    district = request.args.get("district") or request.args.get("drone")
     log_type = request.args.get("type")
     page     = int(request.args.get("page", 1))
     per_page = int(request.args.get("per", 10))
 
-    if drone_id and drone_id != "all":
-        logs = [l for l in logs if l.get("drone_id") == drone_id]
+    if district and district != "all":
+        logs = [l for l in logs if district in l.get("location", "")]
     if log_type and log_type != "all":
         logs = [l for l in logs if l.get("type") == log_type]
 

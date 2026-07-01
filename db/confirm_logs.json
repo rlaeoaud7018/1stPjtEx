@@ -58,5 +58,25 @@
         "fire_time": "2026-06-25 16:13",
         "confirmed_by": "시스템 관리자",
         "id": 6
+    },
+    {
+        "action": "확인",
+        "confirmed_at": "2026-07-01 10:27:12",
+        "drone_id": "DRONE_03",
+        "fire_type": "연기",
+        "location": "유성구 매봉산",
+        "fire_time": "2026-06-25 16:13",
+        "confirmed_by": "시스템 관리자",
+        "id": 7
+    },
+    {
+        "action": "확인",
+        "confirmed_at": "2026-07-01 11:52:03",
+        "drone_id": "DRONE_03",
+        "fire_type": "연기",
+        "location": "유성구 매봉산",
+        "fire_time": "2026-06-25 16:13",
+        "confirmed_by": "시스템 관리자",
+        "id": 8
     }
 ]
