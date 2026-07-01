@@ -384,10 +384,15 @@
 /* ── HUD 히어로 / 통계 강화 ──────────────────────── */
 .hero-badge.neon {
   color: var(--orange-main);
-  text-shadow:
-    0 0 6px rgba(0, 180, 255, 0.7),
-    0 0 18px rgba(0, 150, 220, 0.35);
   letter-spacing: 0.18em;
+}
+
+.hero-badge.neon > span {
+  color: #ff3a00 !important;
+  text-shadow:
+    0 0 5px rgba(255, 50, 0, 1),
+    0 0 14px rgba(255, 30, 0, 0.7),
+    0 0 26px rgba(255, 0, 0, 0.4) !important;
 }
 
 .hero-title.depth {
