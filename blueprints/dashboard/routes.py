@@ -8,27 +8,36 @@ import requests
 dashboard_bp = Blueprint("dashboard", __name__, url_prefix="/dashboard")
 
 
-def generate_frames():
+def generate_frames(camera_num):
     import time
+
     while True:
-        frame = get_frame()
+        frame = get_frame(camera_num)
+
         try:
-            _, buffer = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 80])
+            _, buffer = cv2.imencode(
+                ".jpg",
+                frame,
+                [cv2.IMWRITE_JPEG_QUALITY, 80]
+            )
+
             yield (
                 b"--frame\r\n"
                 b"Content-Type: image/jpeg\r\n\r\n"
                 + buffer.tobytes()
                 + b"\r\n"
             )
+
         except Exception as e:
             print("Frame encode error:", e)
+
         time.sleep(0.05)
 
 
-@dashboard_bp.route("/video_feed")
-def video_feed():
+@dashboard_bp.route("/video_feed/<int:camera_num>")
+def video_feed(camera_num):
     return Response(
-        generate_frames(),
+        generate_frames(camera_num),
         mimetype="multipart/x-mixed-replace; boundary=frame"
     )
 
@@ -163,14 +172,14 @@ def api_send_discord():
 
     data = request.get_json()
     log_id = data.get("log_id")
-
     all_logs = load_fire_logs()
     target_log = next((l for l in all_logs if l.get("id") == log_id), None)
 
     if not target_log:
         return jsonify({"success": False, "message": "로그 데이터를 찾을 수 없습니다."}), 404
 
-    message = f"------드론 탐지 알림------\n- 드론번호:{target_log.get('drone_id')}\n- 위치: {target_log.get('location')}\n- 유형: {target_log.get('type')}\n- 신뢰도: {target_log.get('confidence')}"
+    message = f"------드론 탐지 알림------\n- 위치: {target_log.get('location')}\n- 유형: {target_log.get('type')}"
     response = requests.post(WEBHOOK_URL, json={"content": message})
     
     return jsonify({"success": True, "message": f"Discord 전송 완료 (Log #{response.status_code})"})
+

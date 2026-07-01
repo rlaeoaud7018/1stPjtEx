@@ -4,11 +4,15 @@ import threading
 from datetime import datetime, timedelta
 from utils.json_manager import load_fire_logs, save_fire_logs, get_next_log_id
 
-camera      = None
-camera_lock = threading.Lock()
+camera1 = None
+camera2 = None
+
+camera_lock1 = threading.Lock()
+camera_lock2 = threading.Lock()
 
 # ── ESP32-CAM 스트리밍 주소 (현장 IP로 수정 필요) ──────
-ESP32_STREAM_URL = "http://192.168.137.148:81/stream"
+ESP32_STREAM1_URL = "http://192.168.137.198:81/stream"
+ESP32_STREAM2_URL = "http://192.168.137.31:81/stream"
 
 # ── YOLO 모델 (best.pt 준비 후 주석 해제) ───────────────
 # from ultralytics import YOLO
@@ -20,35 +24,55 @@ ESP32_STREAM_URL = "http://192.168.137.148:81/stream"
 #     model = None
 model = None
 
-last_alert_time = None
+last_alert_time1 = None
+last_alert_time2 = None
 
 
 def init_camera():
-    global camera
+    global camera1, camera2
     print("ESP32-CAM 연결 시도...")
     try:
-        camera = cv2.VideoCapture(ESP32_STREAM_URL)
-        if camera.isOpened():
-            print("카메라 연결 성공!")
+        camera1 = cv2.VideoCapture(ESP32_STREAM1_URL)
+        camera2 = cv2.VideoCapture(ESP32_STREAM2_URL)
+        if camera1.isOpened():
+            print("카메라1 연결 성공!")
+
         else:
-            print("카메라 연결 실패 — NO SIGNAL 모드로 실행")
+            print("카메라1 연결 실패 — NO SIGNAL 모드로 실행")
+
+        if camera2.isOpened():
+            print("카메라2 연결 성공!")
+
+        else:
+            print("카메라2 연결 실패 — NO SIGNAL 모드로 실행")
     except Exception as e:
         print(f"카메라 초기화 오류: {e}")
-        camera = None
+        camera1, camera2 = None
 
 
-def reconnect_camera():
-    global camera
-    print("카메라 재연결 시도...")
+def reconnect_camera(camera_num):
+    global camera1, camera2
+
+    print(f"카메라 {camera_num} 재연결 시도...")
+
     try:
-        if camera:
-            camera.release()
+        if camera_num == 1:
+            if camera1:
+                camera1.release()
+
+            camera1 = cv2.VideoCapture(ESP32_STREAM1_URL)
+
+        else:
+            if camera2:
+                camera2.release()
+
+            camera2 = cv2.VideoCapture(ESP32_STREAM2_URL)
+
     except Exception:
-        pass
-    try:
-        camera = cv2.VideoCapture(ESP32_STREAM_URL)
-    except Exception:
-        camera = None
+        if camera_num == 1:
+            camera1 = None
+        else:
+            camera2 = None
 
 
 def get_no_signal_frame():
@@ -99,58 +123,89 @@ def save_fire_log_entry(detected_type, confidence, drone_id="DR-01", location="�
     print(f"[{detected_type}] 로그 저장 완료 — {location}")
 
 
-def get_frame():
-    global camera, last_alert_time
+def get_frame(camera_num):
+    global camera1, camera2
+    global last_alert_time1, last_alert_time2
+
+    if camera_num == 1:
+        camera = camera1
+        lock = camera_lock1
+        last_alert_time = last_alert_time1
+    else:
+        camera = camera2
+        lock = camera_lock2
+        last_alert_time = last_alert_time2
 
     if camera is None or not camera.isOpened():
         return get_no_signal_frame()
 
     try:
-        with camera_lock:
+        with lock:
             success, frame = camera.read()
 
         if not success:
-            reconnect_camera()
+            reconnect_camera(camera_num)
             return get_no_signal_frame()
 
-        # ── YOLO 감지 (모델 로드 시 활성화) ────────────
+        # YOLO 감지
         if model is not None:
             results = model(frame, verbose=False)
-            result  = results[0]
+            result = results[0]
+
             is_fire_event = False
             detected_type = None
-            max_conf      = 0.0
+            max_conf = 0.0
 
             for box in result.boxes:
-                class_id   = int(box.cls[0])
+                class_id = int(box.cls[0])
                 confidence = float(box.conf[0])
 
                 if class_id == 0:
-                    label_text, detected_type = "FIRE",  "화재"
+                    label_text = "FIRE"
+                    detected_type = "화재"
                 elif class_id == 1:
-                    label_text, detected_type = "SMOKE", "연기"
+                    label_text = "SMOKE"
+                    detected_type = "연기"
                 else:
                     continue
 
                 if confidence >= 0.5:
                     is_fire_event = True
-                    if confidence > max_conf:
-                        max_conf = confidence
+                    max_conf = max(max_conf, confidence)
+
                     x1, y1, x2, y2 = map(int, box.xyxy[0])
-                    clr = (0, 0, 255) if detected_type == "화재" else (0, 140, 180)
-                    cv2.rectangle(frame, (x1, y1), (x2, y2), clr, 2)
-                    cv2.putText(frame, f"{label_text} {confidence:.0%}",
-                                (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.55, clr, 2)
+
+                    color = (0, 0, 255) if detected_type == "화재" else (0, 140, 180)
+
+                    cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
+
+                    cv2.putText(
+                        frame,
+                        f"{label_text} {confidence:.0%}",
+                        (x1, y1 - 10),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        0.55,
+                        color,
+                        2
+                    )
 
             if is_fire_event:
                 now = datetime.now()
+
                 if last_alert_time is None or now - last_alert_time > timedelta(seconds=5):
-                    save_fire_log_entry(detected_type, max_conf)
-                    last_alert_time = now
+                    save_fire_log_entry(
+                        detected_type,
+                        max_conf,
+                        camera_num   # 몇 번 카메라인지 저장
+                    )
+
+                    if camera_num == 1:
+                        last_alert_time1 = now
+                    else:
+                        last_alert_time2 = now
 
         return frame
 
     except Exception as e:
-        print("프레임 처리 오류:", e)
-        reconnect_camera()
+        print(e)
         return get_no_signal_frame()
