@@ -44,8 +44,8 @@
         "recipient_name": "최소방",
         "recipient_phone": "010-3456-7890",
         "message": "[화재경보] 강원도 홍천군 화재 감지. 신뢰도 95%. 즉시 출동 요청.",
-        "confirmed": true,
-        "confirmed_at": "2024-05-20 14:29:45"
+        "confirmed": false,
+        "confirmed_at": null
     },
     {
         "id": 5,
@@ -68,8 +68,8 @@
         "recipient_name": "한대원",
         "recipient_phone": "010-4567-8901",
         "message": "[화재경보] 강원도 인제군 화재 감지. 신뢰도 96%. 즉시 출동 요청.",
-        "confirmed": false,
-        "confirmed_at": null
+        "confirmed": true,
+        "confirmed_at": "2026-07-01 10:10:55"
     },
     {
         "id": 7,
