@@ -120,18 +120,18 @@
 
 .hero-actions .btn-primary {
   box-shadow:
-    0 0 18px rgba(255, 90, 0, 0.45),
+    0 0 18px rgba(0, 180, 255, 0.4),
     0 4px 14px rgba(0, 0, 0, 0.4);
 }
 .hero-actions .btn-primary:hover {
   box-shadow:
-    0 0 28px rgba(255, 90, 0, 0.65),
+    0 0 28px rgba(0, 180, 255, 0.6),
     0 6px 18px rgba(0, 0, 0, 0.4);
   transform: translateY(-2px);
 }
 .hero-actions .btn-secondary:hover {
   border-color: var(--orange-main);
-  box-shadow: 0 0 12px rgba(255, 90, 0, 0.2);
+  box-shadow: 0 0 12px rgba(0, 180, 255, 0.2);
   transform: translateY(-2px);
 }
 
@@ -142,7 +142,7 @@
   font-size: 1.1rem;
   font-weight: 600;
   color: var(--text-primary);
-  background: rgba(255, 90, 0, 0.1);
+  background: rgba(0, 180, 255, 0.08);
   border: 1px solid var(--border-accent);
   border-radius: var(--radius-sm);
   padding: 10px 20px;
@@ -150,7 +150,7 @@
   cursor: pointer;
   transition: all 0.2s;
 }
-.hero-welcome:hover { background: rgba(255, 90, 0, 0.18); }
+.hero-welcome:hover { background: rgba(0, 180, 255, 0.14); }
 .hero-welcome .welcome-name { color: var(--orange-main); }
 
 .hero-notice {
@@ -199,7 +199,7 @@
     rgba(12, 18, 32, 0.75) 0%,
     rgba(6, 8, 15, 0.6) 40%,
     rgba(6, 10, 18, 0.98) 100%);
-  border-top: 1px solid rgba(255, 90, 0, 0.2);
+  border-top: 1px solid rgba(0, 180, 255, 0.15);
   padding: 10px 60px;
   margin-top: -200px;
   border-radius: var(--radius-lg);
@@ -312,7 +312,7 @@
   transition: all 0.2s;
   font-weight: 500;
 }
-.btn-more:hover { background: rgba(255, 90, 0, 0.1); box-shadow: var(--shadow-glow); }
+.btn-more:hover { background: rgba(0, 180, 255, 0.08); box-shadow: var(--shadow-glow); }
 
 /* ── 미승인 팝업 모달 ─────────────────────────────── */
 .modal-overlay {
@@ -384,10 +384,15 @@
 /* ── HUD 히어로 / 통계 강화 ──────────────────────── */
 .hero-badge.neon {
   color: var(--orange-main);
-  text-shadow:
-    0 0 6px rgba(255, 90, 0, 0.8),
-    0 0 18px rgba(255, 70, 0, 0.4);
   letter-spacing: 0.18em;
+}
+
+.hero-badge.neon > span {
+  color: #ff3a00 !important;
+  text-shadow:
+    0 0 5px rgba(255, 50, 0, 1),
+    0 0 14px rgba(255, 30, 0, 0.7),
+    0 0 26px rgba(255, 0, 0, 0.4) !important;
 }
 
 .hero-title.depth {
@@ -400,40 +405,40 @@
 
 .hero-clock.hud-clock {
   background: rgba(6, 10, 20, 0.92);
-  border: 1px solid rgba(255, 90, 0, 0.3);
+  border: 1px solid rgba(0, 180, 255, 0.28);
   box-shadow:
-    0 0 0 1px rgba(255, 90, 0, 0.1),
+    0 0 0 1px rgba(0, 180, 255, 0.1),
     0 4px 20px rgba(0, 0, 0, 0.6),
     inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 .hero-clock.hud-clock .clock-time {
   font-family: var(--font-en);
-  color: #e0d090;
+  color: #90ccf0;
   text-shadow:
-    0 0 8px rgba(255, 200, 60, 0.7),
-    0 0 20px rgba(255, 160, 20, 0.4);
+    0 0 8px rgba(0, 180, 255, 0.65),
+    0 0 20px rgba(0, 150, 220, 0.35);
   letter-spacing: 0.04em;
 }
 .hero-clock.hud-clock .clock-label {
-  color: rgba(255, 140, 40, 0.7);
-  text-shadow: 0 0 6px rgba(255, 100, 0, 0.4);
+  color: rgba(0, 180, 255, 0.62);
+  text-shadow: 0 0 6px rgba(0, 180, 255, 0.35);
 }
 
 .stat-card.hud-stat {
   background: linear-gradient(135deg,
     rgba(12, 18, 32, 0.97) 0%,
     rgba(8, 14, 24, 0.97) 100%);
-  border: 1px solid rgba(255, 90, 0, 0.15);
+  border: 1px solid rgba(0, 180, 255, 0.12);
   box-shadow:
     0 4px 20px rgba(0, 0, 0, 0.5),
     inset 0 1px 0 rgba(255, 255, 255, 0.03),
     inset 0 -1px 0 rgba(0, 0, 0, 0.3);
 }
 .stat-card.hud-stat:hover {
-  border-color: rgba(255, 90, 0, 0.4);
+  border-color: rgba(0, 180, 255, 0.35);
   box-shadow:
-    0 0 0 1px rgba(255, 90, 0, 0.2),
-    0 6px 24px rgba(255, 90, 0, 0.08),
+    0 0 0 1px rgba(0, 180, 255, 0.15),
+    0 6px 24px rgba(0, 180, 255, 0.07),
     0 4px 20px rgba(0, 0, 0, 0.5),
     inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
@@ -445,7 +450,7 @@
   background: linear-gradient(180deg,
     rgba(6, 10, 18, 0.99) 0%,
     rgba(4, 8, 14, 0.99) 100%);
-  border-top: 1px solid rgba(255, 90, 0, 0.2);
+  border-top: 1px solid rgba(0, 180, 255, 0.15);
   position: relative;
 }
 

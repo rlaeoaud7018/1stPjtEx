@@ -154,9 +154,9 @@
   height: 60px;
   background: linear-gradient(
     transparent 0%,
-    rgba(255, 90, 0, 0.06) 40%,
-    rgba(255, 90, 0, 0.10) 50%,
-    rgba(255, 90, 0, 0.06) 60%,
+    rgba(0, 180, 255, 0.04) 40%,
+    rgba(0, 180, 255, 0.07) 50%,
+    rgba(0, 180, 255, 0.04) 60%,
     transparent 100%
   );
   display: none; /* 노이즈 비활성화 */

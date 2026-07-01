@@ -98,7 +98,7 @@
 }
 
 .filter-select {
-  background: #0c1220;
+  background: #060e1c;
   border: 1px solid var(--border-mid);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
@@ -114,7 +114,7 @@
   background-position: right 10px center;
   padding-right: 28px;
 }
-.filter-select option { background: #0c1220; color: var(--text-primary); }
+.filter-select option { background: #060e1c; color: var(--text-primary); }
 .filter-select:focus { border-color: var(--orange-main); }
 
 .filter-input {

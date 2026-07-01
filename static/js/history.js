@@ -8,14 +8,6 @@
   let   barChart     = null;
   let   lineChart    = null;
 
-  /* ── 드론 ID → 구 이름 매핑 ───────────────────────────── */
-  const DRONE_TO_DISTRICT = {
-    'DR-01': '동구',
-    'DR-02': '중구',
-    'DR-03': '서구',
-    'DR-04': '유성구',
-    'DR-05': '대덕구',
-  };
   const DISTRICT_ORDER = ['동구', '중구', '서구', '유성구', '대덕구'];
 
   /* ── 현재 필터 값 ─────────────────────────────────────── */
@@ -31,7 +23,7 @@
     try {
       const droneFilter = getCurrentDroneFilter();
       const typeFilter  = getCurrentTypeFilter();
-      const params = new URLSearchParams({ drone: droneFilter, type: typeFilter, page: 1, per: 9999 });
+      const params = new URLSearchParams({ district: droneFilter, type: typeFilter, page: 1, per: 9999 });
       const res  = await fetch(`/dashboard/api/logs?${params}`);
       const data = await res.json();
       return data.logs || [];
@@ -88,7 +80,7 @@
           legend: {
             position: 'bottom',
             labels: {
-              color:    '#5a7090',
+              color:    '#3a6080',
               font:     { family: 'Outfit', size: 11 },
               padding:  12,
               boxWidth: 12,
@@ -98,7 +90,7 @@
             backgroundColor: 'rgba(8,14,24,0.95)',
             titleColor:      '#dde4f0',
             bodyColor:       '#5a7090',
-            borderColor:     'rgba(255,90,0,0.3)',
+            borderColor:     'rgba(0,180,255,0.25)',
             borderWidth:     1,
           }
         }
@@ -118,8 +110,8 @@
     DISTRICT_ORDER.forEach(d => { districtFire[d] = 0; districtSmoke[d] = 0; });
 
     logs.forEach(log => {
-      const district = DRONE_TO_DISTRICT[log.drone_id];
-      if (!district) return;
+      const district = (log.location || '').split(' ')[0];
+      if (!DISTRICT_ORDER.includes(district)) return;
       if (log.type === '화재') districtFire[district]++;
       else                     districtSmoke[district]++;
     });
@@ -275,10 +267,10 @@
     const typeFilter  = getCurrentTypeFilter();
 
     const params = new URLSearchParams({
-      drone: droneFilter,
-      type:  typeFilter,
-      page:  currentPage,
-      per:   PER_PAGE,
+      district: droneFilter,
+      type:     typeFilter,
+      page:     currentPage,
+      per:      PER_PAGE,
     });
 
     try {

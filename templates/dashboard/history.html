@@ -80,18 +80,17 @@
         <div class="log-filter-bar" id="log-filter-bar">
           <select class="filter-select" id="filter-drone" onchange="fetchLogs()">
             <option value="all">구별 현황</option>
-            <option value="DR-01">동구</option>
-            <option value="DR-02">중구</option>
-            <option value="DR-03">서구</option>
-            <option value="DR-04">유성구</option>
-            <option value="DR-05">대덕구</option>
+            <option value="동구">동구</option>
+            <option value="중구">중구</option>
+            <option value="서구">서구</option>
+            <option value="유성구">유성구</option>
+            <option value="대덕구">대덕구</option>
           </select>
           <select class="filter-select" id="filter-type" onchange="fetchLogs()">
             <option value="all">전체 종류</option>
             <option value="화재">화재</option>
             <option value="연기">연기</option>
           </select>
-          <button class="btn btn-primary btn-sm" onclick="fetchLogs()" id="search-btn">검색</button>
         </div>
 
         <!-- 로그 테이블 -->
