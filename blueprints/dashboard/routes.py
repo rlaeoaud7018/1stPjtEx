@@ -164,8 +164,6 @@ def api_send_discord():
     data = request.get_json()
     log_id = data.get("log_id")
 
-<<<<<<< HEAD
-=======
     all_logs = load_fire_logs()
     target_log = next((l for l in all_logs if l.get("id") == log_id), None)
 
@@ -176,4 +174,3 @@ def api_send_discord():
     response = requests.post(WEBHOOK_URL, json={"content": message})
     
     return jsonify({"success": True, "message": f"Discord 전송 완료 (Log #{response.status_code})"})
->>>>>>> aa57690a8425d99e3344e048e79f22fa0b0cdd47
