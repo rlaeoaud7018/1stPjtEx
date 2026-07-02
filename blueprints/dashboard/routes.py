@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, Response, jsonify, session, redirect, url_for, request
-from ai.camera_manager import get_frame
+from ai.camera_manager import get_frame, get_raw_frame, get_shared_frame
 from utils.json_manager import load_fire_logs, save_confirm_log
 from datetime import datetime, timedelta
 import cv2
@@ -8,11 +8,15 @@ import requests
 dashboard_bp = Blueprint("dashboard", __name__, url_prefix="/dashboard")
 
 
-def generate_frames(camera_num):
+def generate_frames(camera_num, ai=True):
     import time
 
     while True:
-        frame = get_frame(camera_num)
+
+        if ai:
+            frame = get_frame(camera_num)      # AI 영상
+        else:
+            frame = get_raw_frame(camera_num)  # 원본 캠
 
         try:
             _, buffer = cv2.imencode(
@@ -37,9 +41,21 @@ def generate_frames(camera_num):
 @dashboard_bp.route("/video_feed/<int:camera_num>")
 def video_feed(camera_num):
     return Response(
-        generate_frames(camera_num),
+        generate_frames(camera_num, ai=True),
         mimetype="multipart/x-mixed-replace; boundary=frame"
     )
+
+
+@dashboard_bp.route("/camera_feed/<int:camera_num>")
+def camera_feed(camera_num):
+    # 원본 캠(ESP32) 전용 스트리밍
+    def generate():
+        while True:
+            frame = get_shared_frame(camera_num)
+            if frame is None: continue
+            _, buffer = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 80])
+            yield (b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + buffer.tobytes() + b"\r\n")
+    return Response(generate(), mimetype="multipart/x-mixed-replace; boundary=frame")
 
 
 @dashboard_bp.route("/monitor")

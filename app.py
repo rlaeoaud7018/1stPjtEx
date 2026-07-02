@@ -7,7 +7,7 @@ from blueprints.auth.routes import auth_bp
 from blueprints.dashboard.routes import dashboard_bp
 from blueprints.admin.routes import admin_bp
 from blueprints.notice.routes import notice_bp
-from ai.camera_manager import init_camera
+from ai.camera_manager import init_camera , camera_worker
 from utils.json_manager import load_members, load_fire_logs, load_notices
 
 app = Flask(__name__)
@@ -93,16 +93,25 @@ def home():
         smoke_count=smoke_count,
         notices=notices,
     )
+    
 
 if __name__ == "__main__":
-    # 캠 연결 실패 시 에러를 터트리지 않고 넘어가도록 예외 처리
+    import threading
+    from ai.camera_manager import camera_worker
+    
     try:
-        print("ESP32-CAM 연결 시도 중...")
-        init_camera()
-    except Exception as e:
-        print(f"\n[경고] ESP32-CAM 연결에 실패했습니다. (에러: {e})")
-        print("캠 연결 없이 웹 서버(Flask)를 실행합니다.\n")
+        print("ESP32-CAM 연결 스레드 시작 중...")
+        # 기존 카메라 연결 초기화
+        init_camera() 
         
+        # 여기서 스레드를 백그라운드로 실행
+        # src는 실제 카메라 주소(0, 1 또는 RTSP URL)로 수정하세요
+        threading.Thread(target=camera_worker, args=(1, 0), daemon=True).start()
+        threading.Thread(target=camera_worker, args=(2, 1), daemon=True).start()
+        print("카메라 스레드 정상 가동.")
+        
+    except Exception as e:
+        print(f"\n[경고] 카메라 스레드 실행 중 오류 발생: {e}")
 
-    # 카메라 연결 성공/실패 여부와 상관없이 Flask 서버 정상 구동
+    # Flask 실행
     app.run(host="0.0.0.0", port=5000, debug=False, threaded=True)

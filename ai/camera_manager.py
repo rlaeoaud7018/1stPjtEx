@@ -1,6 +1,9 @@
+import os
+os.environ["OPENCV_LOG_LEVEL"] = "FATAL"
 import cv2
 import numpy as np
 import threading
+import time
 from datetime import datetime, timedelta
 from utils.json_manager import load_fire_logs, save_fire_logs, get_next_log_id
 
@@ -11,8 +14,8 @@ camera_lock1 = threading.Lock()
 camera_lock2 = threading.Lock()
 
 # ── ESP32-CAM 스트리밍 주소 (현장 IP로 수정 필요) ──────
-ESP32_STREAM1_URL = "http://192.168.137.198:81/stream"
-ESP32_STREAM2_URL = "http://192.168.137.31:81/stream"
+ESP32_STREAM1_URL = "http://192.168.137.150:81/stream"
+ESP32_STREAM2_URL = "http://192.168.137.26:81/stream"
 
 # ── YOLO 모델 (best.pt 준비 후 주석 해제) ───────────────
 # from ultralytics import YOLO
@@ -32,8 +35,8 @@ def init_camera():
     global camera1, camera2
     print("ESP32-CAM 연결 시도...")
     try:
-        camera1 = cv2.VideoCapture(ESP32_STREAM1_URL)
-        camera2 = cv2.VideoCapture(ESP32_STREAM2_URL)
+        camera1 = cv2.VideoCapture(ESP32_STREAM1_URL, cv2.CAP_FFMPEG)
+        camera2 = cv2.VideoCapture(ESP32_STREAM2_URL, cv2.CAP_FFMPEG)
         if camera1.isOpened():
             print("카메라1 연결 성공!")
 
@@ -209,3 +212,54 @@ def get_frame(camera_num):
     except Exception as e:
         print(e)
         return get_no_signal_frame()
+    
+def get_raw_frame(camera_num):
+    global camera1, camera2
+
+    if camera_num == 1:
+        camera = camera1
+        lock = camera_lock1
+    else:
+        camera = camera2
+        lock = camera_lock2
+
+    if camera is None or not camera.isOpened():
+        return get_no_signal_frame()
+
+    try:
+        with lock:
+            success, frame = camera.read()
+
+        if not success:
+            reconnect_camera(camera_num)
+            return get_no_signal_frame()
+
+        return frame
+
+    except Exception as e:
+        print(e)
+        return get_no_signal_frame()
+    
+latest_frames = {1: None, 2: None}
+frame_locks = {1: threading.Lock(), 2: threading.Lock()}
+
+def camera_worker(camera_num, src):
+    print(f"[알림] 카메라 {camera_num} 연결 시도 중: {src}")
+    while True:
+        cap = cv2.VideoCapture(src, cv2.CAP_FFMPEG)
+        if cap.isOpened():
+            print(f"[성공] 카메라 {camera_num} 연결됨")
+            while True:
+                success, frame = cap.read()
+                if not success:
+                    print(f"[경고] 카메라 {camera_num} 프레임 수신 실패")
+                    break
+                with frame_locks[camera_num]:
+                    latest_frames[camera_num] = frame.copy()
+            cap.release()
+        else:
+            time.sleep(5)
+
+def get_shared_frame(camera_num):
+    with frame_locks[camera_num]:
+        return latest_frames[camera_num].copy() if latest_frames[camera_num] is not None else None
