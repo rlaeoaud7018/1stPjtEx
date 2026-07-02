@@ -19,9 +19,6 @@
 
       <div class="detail-card-header">
         <span>상세 로그 정보</span>
-        <a href="/dashboard/history" class="btn btn-secondary btn-sm" id="to-list-btn">
-          목록으로
-        </a>
       </div>
 
       <!-- 화재 이미지 -->
@@ -73,51 +70,13 @@
 
       <!-- 액션 버튼 -->
       <div class="detail-actions" id="detail-actions">
-        <button class="btn btn-secondary" id="discord-btn" onclick="sendDiscord(Number('{{ log.id }}'))">
-          Discord 전송
-        </button>
-        <button class="btn btn-primary" id="sms-btn" onclick="sendSms(Number('{{ log.id }}'))">
-          SMS 전송
-        </button>
         <button class="btn btn-secondary" id="back-btn" onclick="history.back()">
-          뒤로가기
+          닫기
         </button>
       </div>
 
     </div>
   </div>
-
-  <script>
-    async function sendSms(logId) {
-      const btn = document.getElementById('sms-btn');
-      btn.disabled = true; btn.textContent = '전송 중...';
-      try {
-        const res = await fetch('/dashboard/api/send_sms', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ log_id: logId })
-        });
-        const data = await res.json();
-        alert(data.message);
-      } catch (e) { alert('전송 실패'); }
-      finally { btn.disabled = false; btn.textContent = 'SMS 전송'; }
-    }
-
-    async function sendDiscord(logId) {
-      const btn = document.getElementById('discord-btn');
-      btn.disabled = true; btn.textContent = '전송 중...';
-      try {
-        const res = await fetch('/dashboard/api/send_discord', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ log_id: logId })
-        });
-        const data = await res.json();
-        alert(data.message);
-      } catch (e) { alert('전송 실패'); }
-      finally { btn.disabled = false; btn.textContent = 'Discord 전송'; }
-    }
-  </script>
 </body>
 
 </html>
