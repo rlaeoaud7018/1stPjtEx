@@ -1,12 +1,36 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>드론 소방 관제 시스템</title>
+  <link rel="stylesheet" href="/static/css/base.css">
+  <link rel="stylesheet" href="/static/css/nav.css">
+  <link rel="stylesheet" href="/static/css/hud.css">
+  <link rel="stylesheet" href="/static/css/auth.css">
 </head>
 <body>
-    {% include 'include/nav.html' %}
+{% include 'include/nav.html' %}
 
-    {% if tlqkf tlqkf wrkxsp tirkf~  %}
+<main class="auth-page" id="id-find-result-page">
+  <div class="auth-card" id="id-find-result-card">
+    <h1 class="auth-title">아이디 찾기 결과</h1>
+    <p class="auth-subtitle">회원님의 아이디를 확인했습니다.</p>
+
+    <div class="auth-success show" id="id-find-success">
+      회원님의 아이디는<br><strong>{{ found_id }}</strong> 입니다.
+    </div>
+
+    <div class="form-actions">
+      <a href="/member/signin_form" class="btn btn-primary">로그인하러 가기</a>
+    </div>
+
+    <div class="form-links">
+      <a href="/" class="form-link">메인으로</a>
+      <span style="color:var(--border-mid);">|</span>
+      <a href="/member/pw_find_form" class="form-link">PW 찾기</a>
+    </div>
+  </div>
+</main>
 </body>
 </html>

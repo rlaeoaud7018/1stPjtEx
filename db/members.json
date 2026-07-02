@@ -23,6 +23,14 @@
         "email": "igoeun126@gmail.com",
         "phone": "010-7895-8552",
         "role": "user",
-        "approved": false
+        "approved": true
+    },
+    "qwer": {
+        "pw": "12345",
+        "name": "김대명",
+        "email": "rlaeoaud7018@gmail.com",
+        "phone": "00000000000",
+        "role": "user",
+        "approved": true
     }
 }

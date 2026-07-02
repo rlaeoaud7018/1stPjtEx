@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>드론 소방 관제 시스템</title>
+  <link rel="stylesheet" href="/static/css/base.css">
+  <link rel="stylesheet" href="/static/css/nav.css">
+  <link rel="stylesheet" href="/static/css/hud.css">
+  <link rel="stylesheet" href="/static/css/auth.css">
+</head>
+<body>
+{% include 'include/nav.html' %}
+
+<main class="auth-page" id="pw-reset-page">
+  <div class="auth-card" id="pw-reset-card">
+    <h1 class="auth-title">비밀번호 재설정</h1>
+    <p class="auth-subtitle">새로 사용할 비밀번호를 입력하세요.</p>
+
+    <form id="pw-reset-form" method="POST" action="/member/pw_reset" novalidate>
+      <input type="hidden" name="mId" value="{{ mId }}">
+
+      <div class="input-group">
+        <span class="input-icon">🔒</span>
+        <input class="form-input" type="password" id="mPw" name="mPw"
+               placeholder="새 PW를 입력하세요" required>
+      </div>
+      <div class="input-group">
+        <span class="input-icon">🔒</span>
+        <input class="form-input" type="password" id="mPw2" name="mPw2"
+               placeholder="새 PW를 다시 입력하세요" required>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">비밀번호 변경</button>
+      </div>
+    </form>
+
+    <div class="form-links">
+      <a href="/" class="form-link">메인으로</a>
+    </div>
+  </div>
+</main>
+
+<script>
+document.getElementById('pw-reset-form').addEventListener('submit', function(e) {
+  const pw  = document.getElementById('mPw').value;
+  const pw2 = document.getElementById('mPw2').value;
+  if (pw !== pw2) {
+    e.preventDefault();
+    alert('비밀번호가 일치하지 않습니다.');
+  }
+});
+</script>
+</body>
+</html>

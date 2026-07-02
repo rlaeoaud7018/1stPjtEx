@@ -21,12 +21,6 @@
     <div class="auth-error show" id="signup-error">{{ error }}</div>
     {% endif %}
 
-    {% if success %}
-    <div class="auth-success show" id="signup-success">
-      승인 요청이 완료되었습니다.<br>관리자 승인 후 로그인이 가능합니다.
-    </div>
-    {% endif %}
-
     <form id="signup-form" method="POST" action="/member/signup" novalidate>
       <!-- ID -->
       <div class="id-check-row">

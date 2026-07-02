@@ -39,6 +39,29 @@
   </div>
   {% endif %}
 
+  <!-- 회원가입 승인 요청 완료 팝업 -->
+  {% if show_signup_success %}
+  <div class="modal-overlay" id="signup-success-modal">
+    <div class="modal-box">
+      <div class="modal-title">사용자 등록</div>
+      <div class="modal-check">
+        <span>✅</span> 승인 요청이 완료되었습니다.
+      </div>
+      <div class="modal-hourglass">⏳</div>
+      <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">관리자 승인 대기중</div>
+      <div class="modal-message">
+        관리자 승인 후 로그인이 가능합니다.
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="document.getElementById('signup-success-modal').classList.add('hidden')">
+          닫기
+        </button>
+        <a href="/member/signin_form" class="btn btn-primary">로그인하러 가기</a>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
   <!-- 히어로 섹션 -->
   <section class="hero" id="hero">
     <div class="hero-bg"></div>

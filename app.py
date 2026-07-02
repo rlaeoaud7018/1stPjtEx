@@ -62,6 +62,7 @@ def home():
     member_name = session.get("signinedMemberName")
     approved    = False
     show_pending = request.args.get("pending") == "1"
+    show_signup_success = request.args.get("signup_success") == "1"
 
     if member_id:
         members = load_members()
@@ -77,7 +78,7 @@ def home():
     fire_count  = sum(1 for l in logs if l.get("type") == "화재")
     smoke_count = sum(1 for l in logs if l.get("type") == "연기")
 
-    # 공지 마퀴
+    # 공지 마커
     notices = sorted(load_notices(), key=lambda x: x["id"], reverse=True)[:3]
 
     return render_template(
@@ -86,6 +87,7 @@ def home():
         member_name=member_name,
         approved=approved,
         show_pending=show_pending,
+        show_signup_success=show_signup_success,
         total_count=total_count,
         fire_count=fire_count,
         smoke_count=smoke_count,

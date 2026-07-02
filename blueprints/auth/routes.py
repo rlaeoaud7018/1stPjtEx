@@ -73,7 +73,7 @@ def signup():
         "approved": False,
     }
     save_members(members)
-    return render_template("member/signup_form.html", success=True)
+    return redirect("/?signup_success=1")
 
 
 @auth_bp.route("/check_id", methods=["POST"])
@@ -210,16 +210,21 @@ def id_find_confirm():
     if not session.get('is_email_verified'):
         return "<script>alert('이메일 인증이 필요합니다.'); history.back();</script>"
 
-    user_name = request.form.get('mName')
-    user_email = request.form.get('mMail')
+    user_name = request.form.get('mName', '').strip()
+    user_email = request.form.get('mMail', '').strip()
 
     if session.get('verified_email') != user_email:
         return "<script>alert('인증한 이메일과 입력한 이메일이 다릅니다.'); history.back();</script>"
 
-    found_id = "test_user_id" 
+    members = load_members()
+    found_id = None
+    for m_id, member in members.items():
+        if member.get('name') == user_name and member.get('email') == user_email:
+            found_id = m_id
+            break
 
     if found_id:
-        return render_template('id_find_result.html', found_id=found_id)
+        return render_template('member/id_find_result.html', found_id=found_id)
 
     return "<script>alert('일치하는 회원 정보가 없습니다.'); history.back();</script>"
 
@@ -229,16 +234,45 @@ def pw_find_confirm():
     if not session.get('is_email_verified'):
         return "<script>alert('이메일 인증이 필요합니다.'); history.back();</script>"
 
-    user_id = request.form.get('mId')
-    user_name = request.form.get('mName')
-    user_email = request.form.get('mMail')
+    user_id = request.form.get('mId', '').strip()
+    user_name = request.form.get('mName', '').strip()
+    user_email = request.form.get('mMail', '').strip()
 
     if session.get('verified_email') != user_email:
         return "<script>alert('인증한 이메일과 입력한 이메일이 다릅니다.'); history.back();</script>"
 
-    user_exists = True
+    members = load_members()
+    member = members.get(user_id)
+    user_exists = bool(member) and member.get('name') == user_name and member.get('email') == user_email
 
     if user_exists:
-        return render_template('pw_reset_form.html', mId=user_id)
+        return render_template('member/pw_reset_form.html', mId=user_id)
 
     return "<script>alert('일치하는 회원 정보가 없습니다.'); history.back();</script>"
+
+
+@auth_bp.route('/pw_reset', methods=['POST'])
+def pw_reset():
+    if not session.get('is_email_verified'):
+        return "<script>alert('이메일 인증이 필요합니다.'); history.back();</script>"
+
+    user_id = request.form.get('mId', '').strip()
+    m_pw    = request.form.get('mPw', '').strip()
+    m_pw2   = request.form.get('mPw2', '').strip()
+
+    members = load_members()
+    member  = members.get(user_id)
+
+    if not member:
+        return "<script>alert('일치하는 회원 정보가 없습니다.'); history.back();</script>"
+    if not m_pw or m_pw != m_pw2:
+        return "<script>alert('비밀번호가 일치하지 않습니다.'); history.back();</script>"
+
+    member['pw'] = m_pw
+    members[user_id] = member
+    save_members(members)
+
+    session.pop('is_email_verified', None)
+    session.pop('verified_email', None)
+
+    return "<script>alert('비밀번호가 변경되었습니다. 다시 로그인해주세요.'); location.href='/member/signin_form';</script>"
