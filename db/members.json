@@ -8,5 +8,21 @@
         "department": "관제 센터",
         "district": "전체",
         "approved": true
+    },
+    "gildong": {
+        "pw": "1234",
+        "name": "홍길동",
+        "email": "gildong@gmail.com",
+        "phone": "010-1234-5678",
+        "role": "user",
+        "approved": true
+    },
+    "leegoeun": {
+        "pw": "1245",
+        "name": "이고은",
+        "email": "igoeun126@gmail.com",
+        "phone": "010-7895-8552",
+        "role": "user",
+        "approved": false
     }
 }
